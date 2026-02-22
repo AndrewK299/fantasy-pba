@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PBA Fantasy League</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0e0e10;--surf:#16161a;--surf2:#1e1e24;--surf3:#26262e;
+  --bdr:#2c2c36;--acc:#f5a623;--acc2:#e84f00;
+  --txt:#ede9e3;--mut:#6e6a78;--mut2:#9e9aaa;
+  --grn:#4ade80;--red:#f87171;--blu:#60a5fa;--yel:#fde047;
+}
+body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(90deg,transparent 0,transparent 79px,rgba(245,166,35,.02) 79px,rgba(245,166,35,.02) 80px),radial-gradient(ellipse 80% 40% at 50% -10%,rgba(245,166,35,.07) 0%,transparent 60%);pointer-events:none;z-index:0}
+#app{position:relative;z-index:1}
+
+/* LOGIN */
+#login-page{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+.login-box{width:100%;max-width:400px;background:var(--surf);border:1px solid var(--bdr);border-radius:20px;overflow:hidden;box-shadow:0 40px 80px rgba(0,0,0,.6)}
+.login-hd{padding:36px 32px 24px;background:linear-gradient(135deg,rgba(245,166,35,.12),rgba(232,79,0,.06));border-bottom:1px solid var(--bdr);text-align:center}
+.login-icon{font-size:48px;display:block;margin-bottom:10px}
+.login-title{font-family:'Bebas Neue',sans-serif;font-size:36px;letter-spacing:3px;background:linear-gradient(135deg,var(--acc),var(--acc2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.login-sub{font-size:12px;color:var(--mut2);letter-spacing:2px;text-transform:uppercase;margin-top:4px}
+.login-form{padding:24px 32px 32px}
+.flabel{font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--mut2);margin-bottom:6px;display:block}
+.fsel,.finp{width:100%;background:var(--surf2);border:1px solid var(--bdr);border-radius:10px;color:var(--txt);font-family:'Barlow',sans-serif;font-size:15px;font-weight:500;padding:11px 16px;margin-bottom:14px;transition:border-color .2s;appearance:none}
+.fsel{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236e6a78' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:38px}
+.fsel:focus,.finp:focus{outline:none;border-color:var(--acc)}
+.btn-login{width:100%;background:linear-gradient(135deg,var(--acc),var(--acc2));border:none;border-radius:10px;color:#000;font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;padding:13px;cursor:pointer;transition:opacity .2s}
+.btn-login:hover{opacity:.88}
+.login-err{font-size:13px;color:var(--red);text-align:center;margin-top:10px;min-height:18px}
+
+/* MAIN */
+#main-app{display:none;min-height:100vh}
+.topnav{position:sticky;top:0;z-index:100;background:rgba(14,14,16,.94);backdrop-filter:blur(16px);border-bottom:1px solid var(--bdr)}
+.topnav-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;height:56px;padding:0 16px;gap:8px}
+.nav-brand{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;background:linear-gradient(135deg,var(--acc),var(--acc2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;white-space:nowrap;flex-shrink:0;margin-right:6px}
+.nav-links{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;flex:1}
+.nav-links::-webkit-scrollbar{display:none}
+.nav-btn{font-size:13px;font-weight:500;padding:6px 12px;border-radius:7px;border:none;background:transparent;color:var(--mut2);cursor:pointer;transition:all .15s;white-space:nowrap}
+.nav-btn:hover{color:var(--txt);background:var(--surf2)}
+.nav-btn.active{color:#000;background:var(--acc);font-weight:600}
+.nav-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.nav-badge{font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;background:var(--surf2);border:1px solid var(--bdr);color:var(--mut2);max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.btn-sm{font-size:12px;padding:5px 10px;border-radius:6px;border:1px solid var(--bdr);background:transparent;color:var(--mut);cursor:pointer;transition:all .15s}
+.btn-sm:hover{color:var(--txt);border-color:var(--mut)}
+.hamburger{display:none;background:transparent;border:1px solid var(--bdr);border-radius:7px;color:var(--txt);font-size:18px;padding:4px 9px;cursor:pointer;flex-shrink:0}
+.mobile-menu{display:none;flex-direction:column;background:rgba(14,14,16,.97);border-bottom:1px solid var(--bdr);padding:8px 12px 12px}
+.mobile-menu.open{display:flex}
+.mobile-menu .nav-btn{text-align:left;padding:10px 12px;font-size:15px;border-radius:8px}
+.mobile-meta{display:flex;align-items:center;justify-content:space-between;padding:10px 12px 4px;border-top:1px solid var(--bdr);margin-top:4px}
+@media(max-width:600px){
+  .nav-links,.nav-right{display:none}
+  .hamburger{display:block}
+}
+
+/* PAGES */
+.page{display:none;padding:28px 16px 70px;max-width:1100px;margin:0 auto}
+.page.active{display:block;animation:fadeUp .25s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.ph{margin-bottom:24px}
+.ptitle{font-family:'Bebas Neue',sans-serif;font-size:38px;letter-spacing:2px;line-height:1;margin-bottom:4px}
+.psub{font-size:14px;color:var(--mut2)}
+
+/* CARD */
+.card{background:var(--surf);border:1px solid var(--bdr);border-radius:14px;overflow:hidden;margin-bottom:16px}
+.card-hd{padding:13px 16px;background:var(--surf2);border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;gap:10px}
+.card-title{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:1px}
+.card-body{padding:14px 16px}
+
+/* TABLE */
+.tbl{width:100%;border-collapse:collapse}
+.tbl th{font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--mut);padding:10px 12px;background:var(--surf2);border-bottom:1px solid var(--bdr);text-align:left;white-space:nowrap}
+.tbl td{padding:11px 12px;border-bottom:1px solid var(--bdr);font-size:14px;vertical-align:middle}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:rgba(255,255,255,.02)}
+
+/* STANDINGS */
+.ovr{overflow-x:auto;border-radius:14px}
+.rank-n{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--mut)}
+.r1{color:var(--acc)}.r2{color:#c0c0c0}.r3{color:#cd7f32}
+.tnm{font-weight:600;font-size:15px}
+.sc{text-align:center;color:var(--mut2);font-size:13px}
+.sc.has{color:var(--txt);font-weight:500}
+.tot{font-family:'Bebas Neue',sans-serif;font-size:26px;color:var(--acc);text-align:right}
+
+/* PILLS */
+.pill{font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;padding:2px 8px;border-radius:20px;white-space:nowrap}
+.pg{background:rgba(74,222,128,.12);color:var(--grn)}
+.pr{background:rgba(248,113,113,.12);color:var(--red)}
+.pb{background:rgba(96,165,250,.12);color:var(--blu)}
+.py{background:rgba(253,224,71,.12);color:var(--yel)}
+.pa{background:rgba(245,166,35,.12);color:var(--acc)}
+
+/* MY TEAM */
+.lineup-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:620px){.lineup-grid{grid-template-columns:1fr}}
+.prow{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--bdr)}
+.prow:last-child{border-bottom:none}
+.pdot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.pdot.s{background:var(--grn)}.pdot.b{background:var(--mut)}
+.pname{font-weight:500;font-size:14px;flex:1;line-height:1.3}
+.ppts{font-family:'Bebas Neue',sans-serif;font-size:20px}
+.ppts.pos{color:var(--acc)}.ppts.neg{color:var(--red)}.ppts.z{color:var(--mut)}
+.btn-a{font-size:11px;font-weight:600;padding:4px 10px;border-radius:6px;border:1px solid var(--bdr);background:var(--surf3);color:var(--txt);cursor:pointer;transition:all .15s;white-space:nowrap}
+.btn-a:hover{background:var(--surf2);border-color:var(--mut)}
+.btn-start{border-color:rgba(96,165,250,.3);color:var(--blu)}.btn-start:hover{background:rgba(96,165,250,.1)}
+.btn-bench{border-color:rgba(253,224,71,.3);color:var(--yel)}.btn-bench:hover{background:rgba(253,224,71,.1)}
+.btn-drop{border-color:rgba(248,113,113,.3);color:var(--red)}.btn-drop:hover{background:rgba(248,113,113,.1)}
+.btn-add{border-color:rgba(74,222,128,.3);color:var(--grn)}.btn-add:hover{background:rgba(74,222,128,.1)}
+.btn-orange{background:linear-gradient(135deg,var(--acc),var(--acc2));border:none;border-radius:8px;color:#000;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1px;padding:9px 18px;cursor:pointer;transition:opacity .2s}
+.btn-orange:hover{opacity:.88}
+.lock-banner{background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.2);border-radius:10px;padding:11px 14px;margin-bottom:16px;font-size:13px;color:var(--red);display:flex;align-items:center;gap:8px}
+
+/* SEARCH */
+.search-wrap{display:flex;gap:10px;margin-bottom:16px}
+.search-inp{flex:1;background:var(--surf2);border:1px solid var(--bdr);border-radius:10px;color:var(--txt);font-family:'Barlow',sans-serif;font-size:14px;padding:10px 14px;transition:border-color .2s}
+.search-inp:focus{outline:none;border-color:var(--acc)}
+.fa-scroll{max-height:480px;overflow-y:auto;scrollbar-width:thin}
+.fa-row{display:flex;align-items:center;gap:12px;padding:10px 14px;border-bottom:1px solid var(--bdr);transition:background .15s}
+.fa-row:last-child{border-bottom:none}
+.fa-row:hover{background:var(--surf2)}
+.fa-name{font-weight:500;font-size:14px;flex:1}
+
+/* TRANSACTIONS */
+.tx-item{display:flex;align-items:flex-start;gap:12px;padding:13px 16px;border-bottom:1px solid var(--bdr)}
+.tx-item:last-child{border-bottom:none}
+.tx-ico{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.tx-add{background:rgba(74,222,128,.12)}.tx-drop{background:rgba(248,113,113,.12)}.tx-lu{background:rgba(96,165,250,.12)}
+.tx-main{font-size:14px;font-weight:500;margin-bottom:2px}
+.tx-meta{font-size:12px;color:var(--mut2)}
+.tx-time{font-size:12px;color:var(--mut);white-space:nowrap;margin-left:auto;padding-left:8px}
+
+/* ROSTERS */
+.rosters-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:16px}
+
+/* COMMISSIONER */
+.comm-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
+.sc-row{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--bdr)}
+.sc-row:last-child{border-bottom:none}
+.sc-pname{font-size:13px;font-weight:500;flex:1}
+.sc-inp{width:75px;background:var(--surf3);border:1px solid var(--bdr);border-radius:6px;color:var(--txt);font-family:'Barlow',sans-serif;font-size:14px;font-weight:600;padding:5px 7px;text-align:center}
+.sc-inp:focus{outline:none;border-color:var(--acc)}
+.dnf-lbl{display:flex;align-items:center;gap:4px;font-size:12px;color:var(--red);white-space:nowrap}
+.dnf-lbl input{accent-color:var(--red)}
+
+/* POOL */
+.pool-inp{flex:1;background:var(--surf2);border:1px solid var(--bdr);border-radius:10px;color:var(--txt);font-family:'Barlow',sans-serif;font-size:14px;padding:10px 14px;transition:border-color .2s}
+.pool-inp:focus{outline:none;border-color:var(--acc)}
+.pool-row{display:flex;align-items:center;gap:8px;padding:7px 10px;border-bottom:1px solid var(--bdr);font-size:13px}
+.pool-row:last-child{border-bottom:none}
+.pool-scroll{max-height:320px;overflow-y:auto;scrollbar-width:thin;background:var(--surf2);border-radius:8px;border:1px solid var(--bdr)}
+
+/* MODAL */
+.modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px}
+.modal-ov.hidden{display:none}
+.modal{background:var(--surf);border:1px solid var(--bdr);border-radius:16px;width:100%;max-width:440px;overflow:hidden;box-shadow:0 30px 60px rgba(0,0,0,.5)}
+.modal-hd{padding:18px 20px;background:var(--surf2);border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between}
+.modal-title{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1px}
+.btn-close{background:transparent;border:none;color:var(--mut);font-size:18px;cursor:pointer;padding:2px 6px;border-radius:4px}
+.btn-close:hover{color:var(--txt)}
+.modal-bd{padding:18px 20px;max-height:55vh;overflow-y:auto}
+.modal-ft{padding:14px 20px;border-top:1px solid var(--bdr);display:flex;gap:10px;justify-content:flex-end}
+.btn-cancel{font-size:13px;padding:7px 16px;border-radius:8px;border:1px solid var(--bdr);background:transparent;color:var(--mut2);cursor:pointer}
+.btn-confirm{font-size:13px;font-weight:600;padding:7px 16px;border-radius:8px;border:none;background:var(--acc);color:#000;cursor:pointer}
+.btn-confirm:hover{opacity:.88}
+.btn-confirm.danger{background:var(--red);color:#fff}
+
+/* TOAST */
+.toast{position:fixed;bottom:22px;right:22px;z-index:300;background:var(--surf);border:1px solid var(--bdr);border-radius:11px;padding:13px 18px;font-size:14px;font-weight:500;box-shadow:0 10px 30px rgba(0,0,0,.4);max-width:300px}
+.toast.hidden{display:none}
+.toast.tg{border-color:rgba(74,222,128,.35);color:var(--grn)}
+.toast.tr{border-color:rgba(248,113,113,.35);color:var(--red)}
+
+/* WEEK SEL */
+.wsel{background:var(--surf2);border:1px solid var(--bdr);border-radius:8px;color:var(--txt);font-family:'Barlow',sans-serif;font-size:13px;padding:6px 28px 6px 10px;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='7'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%236e6a78' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;cursor:pointer}
+.wsel:focus{outline:none;border-color:var(--acc)}
+
+/* UTILS */
+.flex{display:flex}.gap2{gap:8px}.gap3{gap:12px}.aic{align-items:center}.jbs{justify-content:space-between}.f1{flex:1}
+.mt2{margin-top:8px}.mt3{margin-top:12px}.mt4{margin-top:16px}.mb2{margin-bottom:8px}.mb3{margin-bottom:12px}
+.txt-mut{color:var(--mut2)}.txt-grn{color:var(--grn)}.txt-red{color:var(--red)}.txt-acc{color:var(--acc)}
+.fw6{font-weight:600}.tsm{font-size:13px}.txs{font-size:11px}
+.divider{height:1px;background:var(--bdr);margin:14px 0}
+.empty{text-align:center;padding:36px 16px;color:var(--mut2)}
+.empty-ico{font-size:32px;margin-bottom:8px}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- LOGIN -->
+<div id="login-page">
+  <div class="login-box">
+    <div class="login-hd">
+      <span class="login-icon">🎳</span>
+      <div class="login-title">PBA FANTASY</div>
+      <div class="login-sub">PBA Fantasy League</div>
+    </div>
+    <div class="login-form">
+      <label class="flabel">Select Your Team</label>
+      <select class="fsel" id="login-team"><option value="">-- Choose team --</option></select>
+      <label class="flabel">Password</label>
+      <input class="finp" type="password" id="login-pass" placeholder="Enter password" autocomplete="off" onkeydown="if(event.key==='Enter')doLogin()">
+      <button class="btn-login" onclick="doLogin()">ENTER LEAGUE</button>
+      <div class="login-err" id="login-err"></div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="main-app">
+  <nav class="topnav">
+    <div class="topnav-inner">
+      <div class="nav-brand">🎳 PBA</div>
+      <div class="nav-links">
+        <button class="nav-btn active" onclick="gotoPage('standings',this)">Standings</button>
+        <button class="nav-btn" id="myteam-btn" onclick="gotoPage('myteam',this)">My Team</button>
+        <button class="nav-btn" onclick="gotoPage('rosters',this)">Rosters</button>
+        <button class="nav-btn" onclick="gotoPage('leaders',this)">Leaders</button>
+        <button class="nav-btn" onclick="gotoPage('freeagency',this)">Add / Drop</button>
+        <button class="nav-btn" onclick="gotoPage('transactions',this)">Feed</button>
+        <button class="nav-btn" id="comm-btn" onclick="gotoPage('commissioner',this)" style="display:none">⚙️ Commish</button>
+      </div>
+      <div class="nav-right">
+        <span class="nav-badge" id="nav-badge">—</span>
+        <button class="btn-sm" onclick="doLogout()">Logout</button>
+      </div>
+      <button class="hamburger" onclick="toggleMobileMenu()">☰</button>
+    </div>
+    <div class="mobile-menu" id="mobile-menu">
+      <button class="nav-btn" onclick="mobileGoto('standings')">Standings</button>
+      <button class="nav-btn" id="myteam-mob" onclick="mobileGoto('myteam')">My Team</button>
+      <button class="nav-btn" onclick="mobileGoto('rosters')">Rosters</button>
+      <button class="nav-btn" onclick="mobileGoto('leaders')">Leaders</button>
+      <button class="nav-btn" onclick="mobileGoto('freeagency')">Add / Drop</button>
+      <button class="nav-btn" onclick="mobileGoto('transactions')">Feed</button>
+      <button class="nav-btn" id="comm-mob" onclick="mobileGoto('commissioner')" style="display:none">⚙️ Commish</button>
+      <div class="mobile-meta">
+        <span class="nav-badge" id="nav-badge-mob">—</span>
+        <button class="btn-sm" onclick="doLogout()">Logout</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- STANDINGS -->
+  <div class="page active" id="page-standings">
+    <div class="ph"><div class="ptitle">Standings</div><div class="psub" id="stnd-sub"></div></div>
+    <div class="ovr card">
+      <table class="tbl" id="stnd-tbl"><thead><tr id="stnd-head"></tr></thead><tbody id="stnd-body"></tbody></table>
+    </div>
+  </div>
+
+  <!-- MY TEAM -->
+  <div class="page" id="page-myteam">
+    <div class="ph"><div class="ptitle" id="mt-title">My Team</div><div class="psub">Manage your lineup and roster</div></div>
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-hd"><div class="card-title">Team Settings</div></div>
+      <div class="card-body">
+        <div class="flex gap2 aic">
+          <input class="pool-inp" type="text" id="team-name-inp" placeholder="Team name" style="max-width:280px">
+          <button class="btn-orange" onclick="saveTeamName()">Save Name</button>
+        </div>
+      </div>
+    </div>
+    <div style="font-size:13px;color:var(--mut2);margin-bottom:16px;display:flex;align-items:center;gap:6px"><span>⏰</span> Set your starting 5 before <strong style="color:var(--txt)">Monday midnight</strong> — the commissioner generates the weekly lineup report at that time, which locks your starters for scoring.</div>
+    <div class="lineup-grid">
+      <div class="card">
+        <div class="card-hd"><div class="card-title">Starters</div><span class="pill pg">5 START</span></div>
+        <div class="card-body" id="mt-starters"></div>
+      </div>
+      <div class="card">
+        <div class="card-hd"><div class="card-title">Bench</div><span class="pill py">5 MAX</span></div>
+        <div class="card-body" id="mt-bench"></div>
+      </div>
+    </div>
+    <div class="card mt3">
+      <div class="card-hd"><div class="card-title">This Week's Scores</div><span class="pill pb" id="mt-wk-pill">WEEK 1</span></div>
+      <div class="card-body" id="mt-scores"></div>
+    </div>
+  </div>
+
+  <!-- ROSTERS -->
+  <div class="page" id="page-rosters">
+    <div class="ph"><div class="ptitle">All Rosters</div><div class="psub">Every team's current roster</div></div>
+    <div class="rosters-grid" id="rosters-grid"></div>
+  </div>
+
+  <!-- LEADERS -->
+  <div class="page" id="page-leaders">
+    <div class="ph"><div class="ptitle">Player Leaders</div><div class="psub">All starters ranked by total points this season</div></div>
+    <div class="card">
+      <table class="tbl" id="leaders-tbl">
+        <thead><tr>
+          <th style="width:40px"></th>
+          <th>PLAYER</th>
+          <th>TEAM</th>
+          <th style="text-align:right">PTS</th>
+        </tr></thead>
+        <tbody id="leaders-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- FREE AGENCY -->
+  <div class="page" id="page-freeagency">
+    <div class="ph"><div class="ptitle">Add / Drop</div><div class="psub">Pick up free agents and manage your roster</div></div>
+    <div class="search-wrap"><input class="search-inp" type="text" id="fa-search" placeholder="Search player name..." oninput="renderFA()"></div>
+    <div class="card">
+      <div class="card-hd"><div class="card-title">Free Agents</div><span class="tsm txt-mut" id="fa-count">—</span></div>
+      <div class="fa-scroll" id="fa-list"></div>
+    </div>
+  </div>
+
+  <!-- TRANSACTIONS -->
+  <div class="page" id="page-transactions">
+    <div class="ph"><div class="ptitle">Feed</div><div class="psub">League activity</div></div>
+    <div class="card" id="tx-card"></div>
+  </div>
+
+  <!-- COMMISSIONER -->
+  <div class="page" id="page-commissioner">
+    <div class="ph"><div class="ptitle">⚙️ Commissioner</div><div class="psub">Score entry, week management & player pool</div></div>
+
+    <!-- Lineup Report -->
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-hd"><div class="card-title">📋 Lineup Report</div></div>
+      <div class="card-body">
+        <div class="flex gap2 aic flex-wrap">
+          <select class="wsel" id="snap-wsel" style="font-size:13px"></select>
+          <button class="btn-orange" onclick="generateReport()">Generate &amp; Lock Lineups</button>
+          <button class="btn-a btn-drop" onclick="clearSnapshot()" style="font-size:12px">Clear Snapshot</button>
+        </div>
+        <div class="mt2 txs txt-mut">Generate the Monday lineup report for a week. This snapshots each team's current starters for scoring — managers can still edit lineups freely after.</div>
+        <div id="snap-status" class="mt2 txs"></div>
+        <div id="lineup-report" style="display:none;margin-top:16px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+            <span class="tsm fw6">Lineup Report</span>
+            <button class="btn-a" onclick="copyReport()" style="font-size:11px">📋 Copy</button>
+          </div>
+          <pre id="lineup-report-text" style="background:var(--surf2);border:1px solid var(--bdr);border-radius:8px;padding:14px;font-size:12px;font-family:'Barlow',monospace;white-space:pre-wrap;color:var(--txt);line-height:1.7"></pre>
+        </div>
+      </div>
+    </div>
+    <!-- Score Entry -->
+    <div class="card">
+      <div class="card-hd">
+        <div class="card-title">Score Entry</div>
+        <div class="flex gap2 aic">
+          <select class="wsel" id="sc-wsel" onchange="renderScoreEntry()"></select>
+          <button class="btn-orange" onclick="saveScores()">Save</button>
+        </div>
+      </div>
+      <div class="card-body"><div class="comm-grid" id="sc-grid"></div></div>
+    </div>
+
+    <!-- Add Week -->
+    <div class="card">
+      <div class="card-hd"><div class="card-title">Add Tournament Week</div></div>
+      <div class="card-body">
+        <div class="flex gap2 aic">
+          <input class="pool-inp" type="text" id="new-wk-inp" placeholder="Tournament name (e.g. US Open)" style="max-width:300px">
+          <button class="btn-orange" onclick="addWeek()">+ Add Week</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Player Pool -->
+    <div class="card">
+      <div class="card-hd"><div class="card-title">Player Pool</div><span class="tsm txt-mut" id="pool-count">—</span></div>
+      <div class="card-body">
+        <div class="flex gap2 mb3">
+          <input class="pool-inp" type="text" id="pool-add-inp" placeholder="Add player by name">
+          <button class="btn-orange" onclick="addToPool()">Add</button>
+        </div>
+        <div class="mb3">
+          <textarea class="pool-inp" id="pool-bulk-inp" rows="3" placeholder="Bulk add: names separated by commas or new lines" style="resize:vertical"></textarea>
+          <button class="btn-orange mt2" style="margin-top:8px" onclick="bulkAddToPool()">Bulk Add</button>
+        </div>
+        <div class="pool-scroll" id="pool-list"></div>
+      </div>
+    </div>
+  </div>
+</div><!-- #main-app -->
+
+<!-- MODAL -->
+<div class="modal-ov hidden" id="modal-ov">
+  <div class="modal">
+    <div class="modal-hd">
+      <div class="modal-title" id="modal-title">Confirm</div>
+      <button class="btn-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-bd" id="modal-bd"></div>
+    <div class="modal-ft">
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-confirm" id="modal-confirm-btn" onclick="modalConfirm()">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast hidden" id="toast"></div>
+
+</div>
+<script>
+// ─── DATA ───────────────────────────────────────────────────
+const DEFAULT = {
+  teams:[
+    {id:'brendans-ballers',  name:"Brendan's Ballers",    pw:'0073'},
+    {id:'shaqs-attack',      name:"Shaq's Attack",        pw:'5001'},
+    {id:'ryans-rolling',     name:"Ryan's Rolling Thunder",pw:'9031'},
+    {id:'pats-punishers',    name:"Pat's Punishers",      pw:'4197'},
+    {id:'andys-avengers',    name:"Andy's Avengers",      pw:'0059'},
+    {id:'kopecs-kingpins',   name:"Kopec's Kingpins",     pw:'1986'},
+    {id:'jeffs-jokers',      name:"Jeff's Jokers",        pw:'7067'},
+    {id:'dingers-ringers',   name:"Dinger's Ringers",     pw:'3675'},
+    {id:'commissioner',      name:'Commissioner',         pw:'commish2025'}
+  ],
+    rosters:{
+    'brendans-ballers': ["EJ Tackett", "Tim Foy Jr.", "Jakob Butturff", "Jake Peters", "Kyle Sherman", "Eric Jones", "Mitch Hupe", "Nate Stubler", "Timmy Tan", "CJ Petrin"],
+    'shaqs-attack': ["Jason Belmonte", "Kyle Troup", "Bill O'Neill", "Marshall Kent", "Matt Russo", "Tommy Jones", "Hayden Stippich", "Brad Miller"],
+    'ryans-rolling': ["Anthony Simonsen", "Spencer Robarge", "Francois Lavoie", "Jason Sterner", "Kevin Mccune", "Justin Knowles", "Thomas Larsen", "Julian Salinas", "Nate Garcia"],
+    'pats-punishers': ["Kristopher Prather", "Graham Fach", "Jason Sterner", "Darren Tang", "Sean Rash", "Tomas Kayhko", "AJ Chapman", "Bryce Oliver", "Nate Purches"],
+    'andys-avengers': ["Keven Williams", "Patrick Hanrahan", "David Krol", "Sam Cooley", "Santtu Tahvanainen", "Nicholas Pate", "Cameron Crowe", "Stuart Williams", "Sean Lavery-Spahr", "Dee Ronn Booker"],
+    'kopecs-kingpins': ["Chris Via", "Ryan Barnes", "Tom Smallwood", "Dom Barrett", "Matt Sanders", "Tom Daugherty", "Bailey Mavrick", "Shawn Maldonado", "Terrance Rock"],
+    'jeffs-jokers': ["Jesper Svensson", "Ethan Fiore", "BJ Moore", "Darren Ong", "Patrick Dombrowski", "Zack Wilkins", "Chris Barnes", "Michael Davidson", "Tun Ameerul Luqman Al Hakim", "Matthew Ogle"],
+    'dingers-ringers': ["Andrew Anderson", "AJ Johnson", "Deo Benard", "Tyrell Ingalls", "Brandon Bonta", "Andrew Hall", "Richard Teece", "Alec Keplinger", "Trevor Roberts"],
+  },
+        lineups:{
+    'brendans-ballers': {starters:["EJ Tackett", "Tim Foy Jr.", "Jakob Butturff", "Jake Peters", "Kyle Sherman"],bench:["Eric Jones", "Mitch Hupe", "Nate Stubler", "Timmy Tan", "CJ Petrin"]},
+    'shaqs-attack': {starters:["Jason Belmonte", "Kyle Troup", "Bill O'Neill", "Marshall Kent", "Matt Russo"],bench:["Tommy Jones", "Hayden Stippich", "Brad Miller"]},
+    'ryans-rolling': {starters:["Anthony Simonsen", "Spencer Robarge", "Francois Lavoie", "Sam Cooley", "Kevin Mccune"],bench:["Justin Knowles", "Thomas Larsen", "Chris Barnes", "Julian Salinas", "Nate Garcia"]},
+    'pats-punishers': {starters:["Kristopher Prather", "Graham Fach", "Jason Sterner", "Darren Tang", "Sean Rash"],bench:["Tomas Kayhko", "AJ Chapman", "Bryce Oliver", "Nate Purches"]},
+    'andys-avengers': {starters:["Keven Williams", "Patrick Hanrahan", "David Krol", "Santtu Tahvanainen", "Nicholas Pate"],bench:["Cameron Crowe", "Stuart Williams", "Sean Lavery-Spahr", "Terrance Rock", "Dee Ronn Booker"]},
+    'kopecs-kingpins': {starters:["Chris Via", "Ryan Barnes", "Tom Smallwood", "Dom Barrett", "Matt Sanders"],bench:["Tom Daugherty", "Bailey Mavrick", "Michael Davidson", "Christopher Sloan"]},
+    'jeffs-jokers': {starters:["Jesper Svensson", "Ethan Fiore", "BJ Moore", "Darren Ong", "Patrick Dombrowski"],bench:["Zack Wilkins", "Shawn Maldonado", "Trevor Roberts", "Tun Ameerul Luqman Al Hakim", "Matthew Ogle"]},
+    'dingers-ringers': {starters:["Andrew Anderson", "AJ Johnson", "Deo Benard", "Tyrell Ingalls", "Brandon Bonta"],bench:["Andrew Hall", "Richard Teece", "Alec Keplinger"]},
+  },
+  weeks:[{id:'w1',name:'Players Championship'}],
+  scores:{},
+  playerPool:[
+    'EJ Tackett','Jason Belmonte','Anthony Simonsen','Kristopher Prather','Keven Williams',
+    'Chris Via','Jesper Svensson','Andrew Anderson','Jakub Butturff',"Bill O'Neill",
+    'Francois Lavoie','Jason Sterner','David Krol','Tom Smallwood','BJ Moore','Deo Benard',
+    'Jake Peters','Marshall Kent','Sam Cooley','Darren Tang','Dom Barrett','Darren Ong',
+    'Tyrell Ingalls','Kyle Sherman','Matt Russo','Kevin Mccune','Graham Fach','Patrick Hanrahan',
+    'Ryan Barnes','Ethan Fiore','AJ Johnson','Sean Rash','Nicholas Pate','Matt Sanders',
+    'Patrick Dombrowski','Brandon Bonta','Eric Jones','Tommy Jones','Justin Knowles',
+    'Tomas Kayhko','Cameron Crowe','Tom Daugherty','Zack Wilkins','Andrew Hall','Mitch Hupe',
+    'Hayden Stippich','Thomas Larsen','AJ Chapman','Stuart Williams','Bailey Mavrick',
+    'Shawn Maldonado','Richard Teece','Nate Stubler','Brad Miller','Chris Barnes','Bryce Oliver',
+    'Sean Lavery-Spahr','Michael Davidson','Trevor Roberts','Alec Keplinger','Timmy Tan',
+    'Julian Salinas','Nate Purches','Terrance Rock','Christopher Sloan',
+    'Tun Ameerul Luqman Al Hakim','CJ Petrin','Nate Garcia','Dee Ronn Booker','Matthew Ogle',
+    'Santtu Tahvanainen','Tim Foy Jr.','Kyle Troup','Spencer Robarge','Jakob Butturff',
+    'Sean Rash','AJ Johnson','Wes Malott','EJ Tackett'
+  ],
+  transactions:[],
+  lockedLineups:{}
+};
+
+function loadDB(){
+  try{
+    const r=localStorage.getItem('pba_v4');
+    if(r){
+      const saved=JSON.parse(r);
+      // Always use hardcoded teams (passwords, IDs) — but preserve any name changes
+      const nameMap={};
+      if(saved.teams)saved.teams.forEach(t=>{nameMap[t.id]=t.name;});
+      saved.teams=DEFAULT.teams.map(t=>({...t, name:nameMap[t.id]||t.name}));
+      // Ensure new fields exist
+      if(!saved.lockedLineups)saved.lockedLineups={};
+      if(!saved.playerPool)saved.playerPool=[...DEFAULT.playerPool];
+      return saved;
+    }
+  }catch(e){}
+  return JSON.parse(JSON.stringify(DEFAULT));
+}
+function saveDB(){localStorage.setItem('pba_v4',JSON.stringify(DB));}
+let DB=loadDB();
+let CU=null; // current user
+let modalCB=null;
+
+// ─── HELPERS ────────────────────────────────────────────────
+// Get starters for a team/week — uses snapshot if one exists, else live lineup
+function getStartersForWeek(tid,wid){
+  if(!DB.lockedLineups)DB.lockedLineups={};
+  if(DB.lockedLineups[wid]&&DB.lockedLineups[wid][tid]){
+    return DB.lockedLineups[wid][tid];
+  }
+  return (DB.lineups[tid]||{starters:[]}).starters;
+}
+function allRostered(){const s=new Set();Object.values(DB.rosters).forEach(r=>r.forEach(p=>s.add(p)));return s;}
+function freeAgents(q=''){const r=allRostered();return DB.playerPool.filter(p=>!r.has(p)).filter(p=>!q||p.toLowerCase().includes(q.toLowerCase())).sort();}
+function teamById(id){return DB.teams.find(t=>t.id===id);}
+function safeP(s){return s.replace(/'/g,"&#39;");}
+
+function weekScore(tid,wid){
+  const starters=getStartersForWeek(tid,wid);
+  const ws=DB.scores[wid]||{};
+  return starters.reduce((sum,p)=>{
+    const s=ws[p];
+    return sum+(s?(s.dnf?-10:Number(s.pts||0)):0);
+  },0);
+}
+function totalScore(tid){return DB.weeks.reduce((s,w)=>s+weekScore(tid,w.id),0);}
+
+function toast(msg,type='tg'){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.className='toast '+type;
+  clearTimeout(t._t);t._t=setTimeout(()=>t.classList.add('hidden'),3000);
+}
+function timeFmt(ts){
+  if(!ts)return'';
+  const d=new Date(ts),df=Date.now()-d;
+  if(df<60000)return'just now';
+  if(df<3600000)return Math.floor(df/60000)+'m ago';
+  if(df<86400000)return Math.floor(df/3600000)+'h ago';
+  return d.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+}
+function openModal(title,body,label,danger,cb){
+  document.getElementById('modal-title').textContent=title;
+  document.getElementById('modal-bd').innerHTML=body;
+  const btn=document.getElementById('modal-confirm-btn');
+  btn.textContent=label;btn.className='btn-confirm'+(danger?' danger':'');
+  modalCB=cb;
+  document.getElementById('modal-ov').classList.remove('hidden');
+}
+function closeModal(){document.getElementById('modal-ov').classList.add('hidden');modalCB=null;}
+function modalConfirm(){if(modalCB)modalCB();closeModal();}
+function logTx(type,msg){DB.transactions.unshift({type,msg,ts:Date.now()});if(DB.transactions.length>200)DB.transactions.pop();}
+
+// ─── AUTH ────────────────────────────────────────────────────
+function populateLoginTeams(){
+  const sel=document.getElementById('login-team');
+  sel.innerHTML='<option value="">-- Choose team --</option>';
+  DB.teams.forEach(t=>{const o=document.createElement('option');o.value=t.id;o.textContent=t.name;sel.appendChild(o);});
+}
+function doLogin(){
+  const tid=document.getElementById('login-team').value;
+  const pw=document.getElementById('login-pass').value;
+  const err=document.getElementById('login-err');
+  if(!tid){err.textContent='Please select a team.';return;}
+  const team=teamById(tid);
+  if(!team||team.pw!==pw){err.textContent='Incorrect password.';return;}
+  err.textContent='';
+  CU={teamId:tid,teamName:team.name,isComm:tid==='commissioner'};
+  document.getElementById('login-page').style.display='none';
+  document.getElementById('main-app').style.display='block';
+  document.getElementById('nav-badge').textContent=team.name;
+  const mobBadge=document.getElementById('nav-badge-mob');
+  if(mobBadge)mobBadge.textContent=team.name;
+  const commMob=document.getElementById('comm-mob');
+  if(commMob)commMob.style.display=CU.isComm?'':'none';
+  const myteamMob=document.getElementById('myteam-mob');
+  if(myteamMob)myteamMob.style.display=CU.isComm?'none':'';
+  document.getElementById('comm-btn').style.display=CU.isComm?'':'none';
+  document.getElementById('myteam-btn').style.display=CU.isComm?'none':'';
+  initApp();
+}
+function toggleMobileMenu(){
+  document.getElementById('mobile-menu').classList.toggle('open');
+}
+function mobileGoto(name){
+  document.getElementById('mobile-menu').classList.remove('open');
+  // find the matching desktop nav button and pass it
+  const btns=document.querySelectorAll('.nav-links .nav-btn');
+  let match=null;
+  btns.forEach(b=>{if(b.getAttribute('onclick')&&b.getAttribute('onclick').includes("'"+name+"'"))match=b;});
+  gotoPage(name,match);
+}
+function doLogout(){
+  CU=null;
+  document.getElementById('login-page').style.display='flex';
+  document.getElementById('main-app').style.display='none';
+  document.getElementById('login-pass').value='';
+  document.getElementById('login-err').textContent='';
+  populateLoginTeams();
+}
+
+// ─── INIT ────────────────────────────────────────────────────
+function initApp(){
+  populateWeekSels();
+  renderStandings();
+  if(!CU.isComm){renderMyTeam();}
+  renderRosters();renderLeaders();renderFA();renderTransactions();
+  if(CU.isComm){populateWeekSels();populateSnapWsel();renderScoreEntry();renderPoolList();}
+  gotoPage('standings',document.querySelector('.nav-btn'));
+}
+function populateWeekSels(){
+  const sel=document.getElementById('sc-wsel');if(!sel)return;
+  sel.innerHTML='';
+  DB.weeks.forEach((w,i)=>{
+    const o=document.createElement('option');o.value=w.id;o.textContent=`Wk ${i+1}: ${w.name}`;sel.appendChild(o);
+  });
+  sel.value=DB.weeks[DB.weeks.length-1].id;
+}
+function gotoPage(name,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  const pg=document.getElementById('page-'+name);if(pg)pg.classList.add('active');
+  // Activate matching buttons in both nav rows by matching text
+  if(btn){const label=btn.textContent;document.querySelectorAll('.nav-btn').forEach(b=>{if(b.textContent===label)b.classList.add('active');});}
+  if(name==='myteam')renderMyTeam();
+  if(name==='freeagency')renderFA();
+  if(name==='rosters')renderRosters();
+  if(name==='leaders')renderLeaders();
+  if(name==='transactions')renderTransactions();
+  if(name==='commissioner'&&CU.isComm){populateSnapWsel();renderScoreEntry();renderPoolList();}
+}
+
+// ─── STANDINGS ───────────────────────────────────────────────
+function renderStandings(){
+  const wShow=DB.weeks;
+  const playedWeeks=wShow.filter(w=>DB.scores[w.id]&&Object.keys(DB.scores[w.id]).length>0);
+  const sub=document.getElementById('stnd-sub');
+  if(sub){sub.textContent=playedWeeks.length===0?'No weeks scored yet':`As of Week ${playedWeeks.length}: ${playedWeeks[playedWeeks.length-1].name}`;}
+  const head=document.getElementById('stnd-head');
+  head.innerHTML=`<th style="width:40px"></th><th>TEAM</th><th style="text-align:right">TOTAL</th><th style="text-align:right">LAST WK</th><th style="text-align:right">HIGH WK</th>`;
+  const teams=DB.teams.filter(t=>t.id!=='commissioner');
+  const sorted=[...teams].sort((a,b)=>totalScore(b.id)-totalScore(a.id));
+  const body=document.getElementById('stnd-body');
+  body.innerHTML='';
+  sorted.forEach((team,i)=>{
+    const rank=i+1;
+    const rc=rank===1?'r1':rank===2?'r2':rank===3?'r3':'';
+    const tot=wShow.reduce((s,w)=>s+weekScore(team.id,w.id),0);
+
+    // Last week: the most recent week that has score data
+    let lastWkScore=null, lastWkName='—';
+    for(let j=wShow.length-1;j>=0;j--){
+      const w=wShow[j];
+      if(DB.scores[w.id]&&Object.keys(DB.scores[w.id]).length>0){
+        lastWkScore=weekScore(team.id,w.id);
+        lastWkName=w.name;
+        break;
+      }
+    }
+
+    // High week: best single-week score across all played weeks
+    let highScore=null, highWkName='—';
+    wShow.forEach(w=>{
+      if(DB.scores[w.id]&&Object.keys(DB.scores[w.id]).length>0){
+        const sc=weekScore(team.id,w.id);
+        if(highScore===null||sc>highScore){highScore=sc;highWkName=w.name;}
+      }
+    });
+
+    const anyData=lastWkScore!==null;
+    const youBadge=CU&&!CU.isComm&&team.id===CU.teamId?' <span class="pill pb" style="font-size:9px">YOU</span>':'';
+
+    const lastCell=lastWkScore!==null
+      ?`<td style="text-align:right"><span style="font-size:13px;font-weight:600;color:var(--txt)">${lastWkScore.toFixed(0)}</span><div style="font-size:10px;color:var(--mut)">${lastWkName.length>14?lastWkName.slice(0,13)+'…':lastWkName}</div></td>`
+      :`<td style="text-align:right;color:var(--mut)">—</td>`;
+    const highCell=highScore!==null
+      ?`<td style="text-align:right"><span style="font-size:13px;font-weight:600;color:var(--grn)">${highScore.toFixed(0)}</span><div style="font-size:10px;color:var(--mut)">${highWkName.length>14?highWkName.slice(0,13)+'…':highWkName}</div></td>`
+      :`<td style="text-align:right;color:var(--mut)">—</td>`;
+
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td><span class="rank-n ${rc}">${rank}</span></td><td class="tnm">${team.name}${youBadge}</td><td class="tot">${anyData?tot.toFixed(0):'—'}</td>${lastCell}${highCell}`;
+    body.appendChild(tr);
+  });
+}
+
+// ─── MY TEAM ─────────────────────────────────────────────────
+function renderMyTeam(){
+  if(!CU||CU.isComm)return;
+  const tid=CU.teamId;
+
+  const lu=DB.lineups[tid]||{starters:[],bench:[]};
+  const curWk=DB.weeks[DB.weeks.length-1];
+  const ws=DB.scores[curWk.id]||{};
+  document.getElementById('mt-title').textContent=teamById(tid).name;
+  const nameInp=document.getElementById('team-name-inp');
+  if(nameInp)nameInp.value=teamById(tid).name;
+  document.getElementById('mt-wk-pill').textContent=`WK ${DB.weeks.length}: ${curWk.name.toUpperCase()}`;
+
+  // Starters
+  const sl=document.getElementById('mt-starters');
+  sl.innerHTML='';
+  lu.starters.forEach(p=>{
+    const s=ws[p];
+    const ptsHtml=s?`<span class="ppts ${s.dnf?'neg':Number(s.pts||0)>0?'pos':'z'}">${s.dnf?'−10':Number(s.pts||0).toFixed(0)}</span>`:'';
+    const actHtml=`<button class="btn-a btn-bench" onclick="toBench('${safeP(p)}')">Bench</button>`;
+    sl.innerHTML+=`<div class="prow"><span class="pdot s"></span><span class="pname">${p}</span>${ptsHtml}${actHtml}</div>`;
+  });
+  for(let i=lu.starters.length;i<5;i++){
+    sl.innerHTML+=`<div class="prow"><span class="pdot s" style="background:var(--mut)"></span><span class="txt-mut tsm" style="flex:1;font-style:italic">Empty slot</span></div>`;
+  }
+
+  // Bench
+  const bl=document.getElementById('mt-bench');
+  bl.innerHTML='';
+  lu.bench.forEach(p=>{
+    const acts=`<div class="flex gap2"><button class="btn-a btn-start" onclick="toStarter('${safeP(p)}')">Start</button><button class="btn-a btn-drop" onclick="confirmDrop('${safeP(p)}')">Drop</button></div>`;
+    bl.innerHTML+=`<div class="prow"><span class="pdot b"></span><span class="pname">${p}</span><span class="ppts z" style="font-size:12px;font-family:'Barlow',sans-serif;font-weight:500">BENCH</span>${acts}</div>`;
+  });
+
+  // Scores
+  const msc=document.getElementById('mt-scores');
+  const anyScore=lu.starters.some(p=>ws[p]);
+  if(!anyScore){
+    msc.innerHTML=`<div class="empty"><div class="empty-ico">📋</div><div>No scores yet for ${curWk.name}</div></div>`;
+  } else {
+    let tot=0;
+    msc.innerHTML='';
+    lu.starters.forEach(p=>{
+      const s=ws[p];
+      const pts=s?(s.dnf?-10:Number(s.pts||0)):0;
+      tot+=pts;
+      const cls=pts<0?'txt-red':pts>0?'txt-acc':'txt-mut';
+      msc.innerHTML+=`<div class="sc-row"><span class="sc-pname">${p} <span class="pill pg" style="font-size:9px">START</span></span><span class="${cls} fw6" style="font-family:'Bebas Neue',sans-serif;font-size:20px">${s?(s.dnf?'−10':pts.toFixed(0)):'—'}</span></div>`;
+    });
+    msc.innerHTML+=`<div class="divider"></div><div class="flex jbs aic"><span class="fw6">Team Total</span><span style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--acc)">${tot.toFixed(0)}</span></div>`;
+  }
+}
+
+function saveTeamName(){
+  const inp=document.getElementById('team-name-inp');
+  const newName=inp.value.trim();
+  if(!newName){toast('Enter a team name','tr');return;}
+  const team=teamById(CU.teamId);
+  const oldName=team.name;
+  if(newName===oldName){toast('Name unchanged','tr');return;}
+  team.name=newName;
+  CU.teamName=newName;
+  document.getElementById('nav-badge').textContent=newName;
+  document.getElementById('mt-title').textContent=newName;
+  logTx('rename',`Team renamed from "${oldName}" to "${newName}"`);
+  saveDB();renderStandings();renderRosters();renderTransactions();
+  toast(`Team renamed to "${newName}" ✓`);
+}
+function toStarter(player){
+  const lu=DB.lineups[CU.teamId];
+  if(lu.starters.length>=5){toast('Already have 5 starters. Move one to bench first.','tr');return;}
+  lu.bench=lu.bench.filter(p=>p!==player);
+  if(!lu.starters.includes(player))lu.starters.push(player);
+  saveDB();renderMyTeam();toast(`${player} is now a starter ✓`);
+}
+function toBench(player){
+  const lu=DB.lineups[CU.teamId];
+
+  lu.starters=lu.starters.filter(p=>p!==player);
+  if(!lu.bench.includes(player))lu.bench.push(player);
+  logTx('lineup',`${CU.teamName} moved ${player} to bench`);
+  saveDB();renderMyTeam();toast(`${player} moved to bench`);
+}
+function confirmDrop(player){
+  if(DB.lineups[CU.teamId].starters.includes(player)){
+    toast('Move player to bench before dropping.','tr');return;
+  }
+  openModal('Drop Player',`<p style="font-size:15px;line-height:1.6">Drop <strong>${player}</strong> from your roster? They will immediately become a free agent available to any team.</p>`,'Drop',true,()=>{
+    DB.rosters[CU.teamId]=DB.rosters[CU.teamId].filter(p=>p!==player);
+    DB.lineups[CU.teamId].bench=DB.lineups[CU.teamId].bench.filter(p=>p!==player);
+    logTx('drop',`${CU.teamName} dropped ${player}`);
+    saveDB();renderMyTeam();renderFA();toast(`${player} dropped`,'tr');
+  });
+}
+
+// ─── FREE AGENCY ─────────────────────────────────────────────
+function renderFA(){
+  const q=document.getElementById('fa-search').value||'';
+  const fas=freeAgents(q);
+  document.getElementById('fa-count').textContent=`${fas.length} available`;
+  const list=document.getElementById('fa-list');
+  if(fas.length===0){list.innerHTML='<div class="empty"><div class="empty-ico">🔍</div><div>No players found</div></div>';return;}
+  list.innerHTML=fas.map(p=>{
+    const canAdd=CU&&!CU.isComm;
+    return`<div class="fa-row"><span class="fa-name">${p}</span>${canAdd?`<button class="btn-a btn-add" onclick="pickupPlayer('${safeP(p)}')">+ Add</button>`:''}
+    </div>`;
+  }).join('');
+}
+function pickupPlayer(player){
+  if(!CU||CU.isComm)return;
+  const roster=DB.rosters[CU.teamId];
+  if(roster.length>=10){
+    const lu=DB.lineups[CU.teamId];
+    const starterOpts=lu.starters.map(p=>`<option value="${safeP(p)}">[STARTER] ${p}</option>`).join('');
+    const benchOpts=lu.bench.map(p=>`<option value="${safeP(p)}">[BENCH] ${p}</option>`).join('');
+    openModal('Roster Full — Drop a Player',
+      `<p style="font-size:14px;margin-bottom:12px">Your roster is full (10/10). Select a player to drop in order to add <strong>${player}</strong>.</p>
+       <select class="fsel" id="drop-sel" style="margin-bottom:0">${starterOpts}${benchOpts}</select>
+       <p style="font-size:12px;color:var(--mut2);margin-top:8px">⚠️ Dropping a starter will leave an empty slot in your lineup.</p>`,
+      'Add & Drop',false,()=>{
+        const dropPlayer=document.getElementById('drop-sel').value;
+        DB.rosters[CU.teamId]=DB.rosters[CU.teamId].filter(p=>p!==dropPlayer);
+        DB.lineups[CU.teamId].starters=DB.lineups[CU.teamId].starters.filter(p=>p!==dropPlayer);
+        DB.lineups[CU.teamId].bench=DB.lineups[CU.teamId].bench.filter(p=>p!==dropPlayer);
+        DB.rosters[CU.teamId].push(player);
+        DB.lineups[CU.teamId].bench.push(player);
+        logTx('add',`${CU.teamName} added ${player}`);
+        logTx('drop',`${CU.teamName} dropped ${dropPlayer}`);
+        saveDB();renderFA();renderMyTeam();renderRosters();renderTransactions();
+        toast(`Added ${player}, dropped ${dropPlayer} ✓`);
+      });
+    return;
+  }
+  DB.rosters[CU.teamId].push(player);
+  DB.lineups[CU.teamId].bench.push(player);
+  logTx('add',`${CU.teamName} added ${player}`);
+  saveDB();renderFA();renderMyTeam();renderRosters();renderTransactions();
+  toast(`${player} added to roster ✓`);
+}
+
+// ─── ROSTERS ─────────────────────────────────────────────────
+function renderRosters(){
+  const g=document.getElementById('rosters-grid');
+  const teams=DB.teams.filter(t=>t.id!=='commissioner');
+  g.innerHTML=teams.map(team=>{
+    const r=DB.rosters[team.id]||[];
+    const lu=DB.lineups[team.id]||{starters:[],bench:[]};
+    const rows=r.map(p=>{
+      const isStart=lu.starters.includes(p);
+      return`<div class="prow"><span class="pdot ${isStart?'s':'b'}"></span><span class="pname">${p}</span><span class="pill ${isStart?'pg':'py'}" style="font-size:9px">${isStart?'START':'BENCH'}</span></div>`;
+    }).join('');
+    const youTag=CU&&!CU.isComm&&team.id===CU.teamId?' <span class="pill pb" style="font-size:9px">YOU</span>':'';
+    return`<div class="card">
+      <div class="card-hd"><div class="card-title">${team.name}${youTag}</div></div>
+      <div class="card-body" style="padding:8px 14px">${rows}</div>
+    </div>`;
+  }).join('');
+}
+
+// ─── LEADERS ─────────────────────────────────────────────────
+function renderLeaders(){
+  const body=document.getElementById('leaders-body');
+  if(!body)return;
+  // Build a map of player -> {team, totalPts}
+  // Only include players who have started at least once (appear in any snapshot or current lineup)
+  const playerMap={};
+  const teams=DB.teams.filter(t=>t.id!=='commissioner');
+
+  // Collect all players who have ever started — from snapshots + current lineups
+  teams.forEach(team=>{
+    const allStarters=new Set();
+    // From snapshots
+    if(DB.lockedLineups){
+      Object.values(DB.lockedLineups).forEach(snap=>{
+        if(snap[team.id])snap[team.id].forEach(p=>allStarters.add(p));
+      });
+    }
+    // From current lineup starters
+    const lu=DB.lineups[team.id]||{starters:[]};
+    lu.starters.forEach(p=>allStarters.add(p));
+
+    allStarters.forEach(p=>{
+      if(!playerMap[p])playerMap[p]={team:team.name,pts:0};
+      // Sum points across all weeks where this player started for this team
+      DB.weeks.forEach(w=>{
+        const starters=getStartersForWeek(team.id,w.id);
+        if(starters.includes(p)){
+          const s=(DB.scores[w.id]||{})[p];
+          if(s)playerMap[p].pts+=s.dnf?-10:Number(s.pts||0);
+        }
+      });
+    });
+  });
+
+  const sorted=Object.entries(playerMap).sort((a,b)=>b[1].pts-a[1].pts);
+  if(sorted.length===0){
+    body.innerHTML=`<tr><td colspan="4"><div class="empty"><div class="empty-ico">🎳</div><div>No starters yet this season</div></div></td></tr>`;
+    return;
+  }
+  body.innerHTML=sorted.map(([player,data],i)=>{
+    const rank=i+1;
+    const rc=rank===1?'r1':rank===2?'r2':rank===3?'r3':'';
+    const ptsColor=data.pts<0?'color:var(--red)':data.pts>0?'color:var(--acc)':'color:var(--mut)';
+    return`<tr>
+      <td><span class="rank-n ${rc}">${rank}</span></td>
+      <td style="font-weight:600;font-size:14px">${player}</td>
+      <td style="font-size:13px;color:var(--mut2)">${data.team}</td>
+      <td style="text-align:right;font-family:'Bebas Neue',sans-serif;font-size:24px;${ptsColor}">${data.pts}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ─── TRANSACTIONS ─────────────────────────────────────────────
+function renderTransactions(){
+  const c=document.getElementById('tx-card');
+  if(DB.transactions.length===0){
+    c.innerHTML='<div class="empty"><div class="empty-ico">📰</div><div>No transactions yet</div></div>';return;
+  }
+  const icons={add:'➕',drop:'➖',lineup:'📋',rename:'✏️'};
+  const classes={add:'tx-add',drop:'tx-drop',lineup:'tx-lu',rename:'tx-lu'};
+  c.innerHTML=DB.transactions.map(tx=>`
+    <div class="tx-item">
+      <div class="tx-ico ${classes[tx.type]||'tx-lu'}">${icons[tx.type]||'📋'}</div>
+      <div style="flex:1"><div class="tx-main">${tx.msg}</div></div>
+      <div class="tx-time">${timeFmt(tx.ts)}</div>
+    </div>`).join('');
+}
+
+// ─── COMMISSIONER ────────────────────────────────────────────
+function populateSnapWsel(){
+  const sel=document.getElementById('snap-wsel');if(!sel)return;
+  sel.innerHTML='';
+  DB.weeks.forEach((w,i)=>{
+    const o=document.createElement('option');o.value=w.id;o.textContent=`Wk ${i+1}: ${w.name}`;sel.appendChild(o);
+  });
+  sel.value=DB.weeks[DB.weeks.length-1].id;
+}
+function generateReport(){
+  const wid=document.getElementById('snap-wsel').value;
+  const wk=DB.weeks.find(w=>w.id===wid);
+  const wname=wk?wk.name:wid;
+  const wnum=DB.weeks.indexOf(wk)+1;
+  if(!DB.lockedLineups)DB.lockedLineups={};
+  DB.lockedLineups[wid]={};
+  const teams=DB.teams.filter(t=>t.id!=='commissioner');
+  teams.forEach(t=>{
+    const lu=DB.lineups[t.id]||{starters:[]};
+    DB.lockedLineups[wid][t.id]=[...lu.starters];
+  });
+  saveDB();renderScoreEntry();
+  // Build report text
+  const now=new Date();
+  const dateStr=now.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+  let report=`PBA FANTASY — WEEK ${wnum} LINEUP REPORT
+${wname}
+Generated: ${dateStr}
+${'─'.repeat(40)}
+
+`;
+  teams.forEach(t=>{
+    const starters=DB.lockedLineups[wid][t.id]||[];
+    report+=t.name+'\n';
+    starters.forEach((p,i)=>{ report+=`  ${i+1}. ${p}\n`; });
+    report+='\n';
+  });
+  document.getElementById('lineup-report-text').textContent=report.trim();
+  document.getElementById('lineup-report').style.display='block';
+  document.getElementById('snap-status').innerHTML=`<span style="color:var(--grn)">✓ Lineups locked for Week ${wnum}: ${wname}</span>`;
+  toast('Lineup report generated ✓');
+}
+function clearSnapshot(){
+  const wid=document.getElementById('snap-wsel').value;
+  if(DB.lockedLineups&&DB.lockedLineups[wid])delete DB.lockedLineups[wid];
+  saveDB();renderScoreEntry();
+  document.getElementById('lineup-report').style.display='none';
+  document.getElementById('snap-status').innerHTML=`<span style="color:var(--yel)">Snapshot cleared — score entry now uses live lineups</span>`;
+  toast('Snapshot cleared','tr');
+}
+function copyReport(){
+  const text=document.getElementById('lineup-report-text').textContent;
+  navigator.clipboard.writeText(text).then(()=>toast('Report copied to clipboard ✓')).catch(()=>toast('Copy failed — select text manually','tr'));
+}
+function renderScoreEntry(){
+  const wid=document.getElementById('sc-wsel').value||DB.weeks[0].id;
+
+  const ws=DB.scores[wid]||{};
+  const teams=DB.teams.filter(t=>t.id!=='commissioner');
+  const snapped=DB.lockedLineups&&DB.lockedLineups[wid];
+  const g=document.getElementById('sc-grid');
+  // Status banner
+  const statusHtml=snapped
+    ?`<div style="background:rgba(74,222,128,.08);border:1px solid rgba(74,222,128,.2);border-radius:8px;padding:10px 14px;margin-bottom:16px;font-size:13px;color:var(--grn)">🔒 Lineups locked & snapshotted for this week. Scores are based on each team's starting lineup as of Monday midnight.</div>`
+    :`<div style="background:rgba(253,224,71,.08);border:1px solid rgba(253,224,71,.2);border-radius:8px;padding:10px 14px;margin-bottom:16px;font-size:13px;color:var(--yel)">⚠️ Lineups not yet locked for this week (lock triggers Monday midnight). Score entry shows current live lineups.</div>`;
+  g.innerHTML=statusHtml+teams.map(team=>{
+    const starters=getStartersForWeek(team.id,wid);
+    const rows=starters.map(p=>{
+      const s=ws[p]||{};
+      return`<div class="sc-row">
+        <span class="sc-pname">${p}</span>
+        <input class="sc-inp" type="number" step="0.01" placeholder="pts" value="${s.pts!=null?s.pts:''}" id="sc_${wid}_${safeP(p).replace(/\s/g,'_')}">
+        <label class="dnf-lbl"><input type="checkbox" id="dnf_${wid}_${safeP(p).replace(/\s/g,'_')}" ${s.dnf?'checked':''}> DNF</label>
+      </div>`;
+    }).join('');
+    return`<div class="card" style="margin-bottom:0">
+      <div class="card-hd"><div class="card-title" style="font-size:15px">${team.name}${snapped?'':' <span class="pill py" style="font-size:9px">LIVE</span>'}</div></div>
+      <div class="card-body" style="padding:8px 14px">${rows}</div>
+    </div>`;
+  }).join('');
+}
+function saveScores(){
+  const wid=document.getElementById('sc-wsel').value;
+  if(!DB.scores[wid])DB.scores[wid]={};
+  const teams=DB.teams.filter(t=>t.id!=='commissioner');
+  teams.forEach(team=>{
+    const starters=getStartersForWeek(team.id,wid);
+    starters.forEach(p=>{
+      const key=safeP(p).replace(/\s/g,'_');
+      const inp=document.getElementById(`sc_${wid}_${key}`);
+      const dnfEl=document.getElementById(`dnf_${wid}_${key}`);
+      if(!inp)return;
+      const dnf=dnfEl&&dnfEl.checked;
+      const pts=inp.value!==''?parseFloat(inp.value):null;
+      if(dnf||pts!==null){
+        DB.scores[wid][p]={pts:pts||0,dnf};
+      }
+    });
+  });
+  saveDB();renderStandings();renderMyTeam();renderRosters();
+  toast('Scores saved ✓');
+}
+function addWeek(){
+  const inp=document.getElementById('new-wk-inp');
+  const name=inp.value.trim();
+  if(!name){toast('Enter a tournament name','tr');return;}
+  const id='w'+(DB.weeks.length+1);
+  DB.weeks.push({id,name});
+  inp.value='';
+  saveDB();populateWeekSels();populateSnapWsel();renderStandings();
+  toast(`Week added: ${name} ✓`);
+}
+function renderPoolList(){
+  const rostered=allRostered();
+  document.getElementById('pool-count').textContent=`${DB.playerPool.length} in pool`;
+  const list=document.getElementById('pool-list');
+  const unique=[...new Set(DB.playerPool)].sort();
+  list.innerHTML=unique.map((p,i)=>`<div class="pool-row">
+    <span style="flex:1">${p}</span>
+    <span class="pill ${rostered.has(p)?'pg':'txt-mut'}" style="font-size:9px">${rostered.has(p)?'ON ROSTER':'FREE'}</span>
+    <button class="btn-a btn-drop" style="font-size:10px;padding:2px 7px" onclick="removeFromPool('${safeP(p)}')">✕</button>
+  </div>`).join('');
+}
+function addToPool(){
+  const inp=document.getElementById('pool-add-inp');
+  const name=inp.value.trim();
+  if(!name){toast('Enter a player name','tr');return;}
+  if(!DB.playerPool.includes(name)){DB.playerPool.push(name);saveDB();renderPoolList();renderFA();toast(`${name} added to pool ✓`);}
+  else{toast('Already in pool','tr');}
+  inp.value='';
+}
+function bulkAddToPool(){
+  const raw=document.getElementById('pool-bulk-inp').value;
+  const names=raw.split(/[\n,]+/).map(s=>s.trim()).filter(Boolean);
+  let added=0;
+  names.forEach(n=>{if(n&&!DB.playerPool.includes(n)){DB.playerPool.push(n);added++;}});
+  saveDB();renderPoolList();renderFA();
+  document.getElementById('pool-bulk-inp').value='';
+  toast(`Added ${added} player${added!==1?'s':''} ✓`);
+}
+function removeFromPool(player){
+  DB.playerPool=DB.playerPool.filter(p=>p!==player);
+  saveDB();renderPoolList();renderFA();
+}
+
+// ─── BOOT ────────────────────────────────────────────────────
+populateLoginTeams();
+</script>
+</body>
+</html>
