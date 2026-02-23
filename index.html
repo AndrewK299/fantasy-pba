@@ -647,7 +647,7 @@ function renderStandings(){
       ?`<td style="text-align:right"><span style="font-size:13px;font-weight:600;color:var(--txt)">${lastWkScore.toFixed(0)}</span><div style="font-size:10px;color:var(--mut)">${lastWkName.length>14?lastWkName.slice(0,13)+'…':lastWkName}</div></td>`
       :`<td style="text-align:right;color:var(--mut)">—</td>`;
     const tr=document.createElement('tr');
-    tr.innerHTML=`<td><span class="rank-n ${rc}">${rank}</span></td><td class="tnm">${displayName}${youBadge}</td><td class="tot">${anyData?tot.toFixed(0):'—'}</td>${lastCell}`;
+    tr.innerHTML=`<td><span class="rank-n ${rc}">${rank}</span></td><td class="tnm">${displayName}${youBadge}</td><td><span style="font-family:'Bebas Neue',sans-serif;font-size:48px;color:var(--acc)">${anyData?tot.toFixed(0):'—'}</span></td>${lastCell}`;
     body.appendChild(tr);
   });
 }
