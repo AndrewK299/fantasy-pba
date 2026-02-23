@@ -13,7 +13,7 @@
   --txt:#ede9e3;--mut:#6e6a78;--mut2:#9e9aaa;
   --grn:#4ade80;--red:#f87171;--blu:#60a5fa;--yel:#fde047;
 }
-body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;overflow-x:hidden}
+body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;overflow-x:hidden;font-size:16px}
 body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(90deg,transparent 0,transparent 79px,rgba(245,166,35,.02) 79px,rgba(245,166,35,.02) 80px),radial-gradient(ellipse 80% 40% at 50% -10%,rgba(245,166,35,.07) 0%,transparent 60%);pointer-events:none;z-index:0}
 #app{position:relative;z-index:1}
 #login-page{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
@@ -65,14 +65,14 @@ body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradi
 .card-body{padding:14px 16px}
 .tbl{width:100%;border-collapse:collapse}
 .tbl th{font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--mut);padding:10px 12px;background:var(--surf2);border-bottom:1px solid var(--bdr);text-align:left;white-space:nowrap}
-.tbl td{padding:11px 12px;border-bottom:1px solid var(--bdr);font-size:14px;vertical-align:middle}
+.tbl td{padding:11px 12px;border-bottom:1px solid var(--bdr);font-size:15px;vertical-align:middle}
 .tbl tr:last-child td{border-bottom:none}
 .tbl tr:hover td{background:rgba(255,255,255,.02)}
 .ovr{overflow-x:auto;border-radius:14px}
-.rank-n{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--mut)}
+.rank-n{font-family:'Bebas Neue',sans-serif;font-size:26px;color:var(--mut)}
 .r1{color:var(--acc)}.r2{color:#c0c0c0}.r3{color:#cd7f32}
 .tnm{font-weight:600;font-size:15px}
-.tot{font-family:'Bebas Neue',sans-serif;font-size:26px;color:var(--acc);text-align:right}
+.tot{font-family:'Bebas Neue',sans-serif;font-size:30px;color:var(--acc);text-align:right}
 .pill{font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;padding:2px 8px;border-radius:20px;white-space:nowrap}
 .pg{background:rgba(74,222,128,.12);color:var(--grn)}
 .pr{background:rgba(248,113,113,.12);color:var(--red)}
@@ -85,8 +85,8 @@ body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradi
 .prow:last-child{border-bottom:none}
 .pdot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 .pdot.s{background:var(--grn)}.pdot.b{background:var(--mut)}
-.pname{font-weight:500;font-size:14px;flex:1;line-height:1.3}
-.ppts{font-family:'Bebas Neue',sans-serif;font-size:20px}
+.pname{font-weight:500;font-size:15px;flex:1;line-height:1.3}
+.ppts{font-family:'Bebas Neue',sans-serif;font-size:24px}
 .ppts.pos{color:var(--acc)}.ppts.neg{color:var(--red)}.ppts.z{color:var(--mut)}
 .btn-a{font-size:11px;font-weight:600;padding:4px 10px;border-radius:6px;border:1px solid var(--bdr);background:var(--surf3);color:var(--txt);cursor:pointer;transition:all .15s;white-space:nowrap}
 .btn-a:hover{background:var(--surf2);border-color:var(--mut)}
@@ -104,7 +104,7 @@ body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradi
 .fa-row{display:flex;align-items:center;gap:12px;padding:10px 14px;border-bottom:1px solid var(--bdr);transition:background .15s}
 .fa-row:last-child{border-bottom:none}
 .fa-row:hover{background:var(--surf2)}
-.fa-name{font-weight:500;font-size:14px;flex:1}
+.fa-name{font-weight:500;font-size:15px;flex:1}
 .tx-item{display:flex;align-items:flex-start;gap:12px;padding:13px 16px;border-bottom:1px solid var(--bdr)}
 .tx-item:last-child{border-bottom:none}
 .tx-ico{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
@@ -115,7 +115,7 @@ body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradi
 .comm-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
 .sc-row{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--bdr)}
 .sc-row:last-child{border-bottom:none}
-.sc-pname{font-size:13px;font-weight:500;flex:1}
+.sc-pname{font-size:14px;font-weight:500;flex:1}
 .sc-inp{width:75px;background:var(--surf3);border:1px solid var(--bdr);border-radius:6px;color:var(--txt);font-family:'Barlow',sans-serif;font-size:14px;font-weight:600;padding:5px 7px;text-align:center}
 .sc-inp:focus{outline:none;border-color:var(--acc)}
 .dnf-lbl{display:flex;align-items:center;gap:4px;font-size:12px;color:var(--red);white-space:nowrap}
@@ -429,16 +429,9 @@ let mtSelectedWeek = null;
 let unsubscribe = null;
 
 // ─── HELPERS ────────────────────────────────────────────────
-function nextMondayMidnight(from){
-  const d=new Date(from);const day=d.getDay();
-  const daysUntil=day===1?7:(8-day)%7||7;
-  d.setDate(d.getDate()+daysUntil);d.setHours(0,0,0,0);return d.getTime();
-}
 function isWeekLocked(wid){
-  if(DB.lockedLineups&&DB.lockedLineups[wid])return true;
-  const wk=(DB.weeks||[]).find(w=>w.id===wid);
-  if(!wk||!wk.lockDate)return false;
-  return Date.now()>=wk.lockDate;
+  // A week is only locked if the commish has manually generated/locked it
+  return !!(DB.lockedLineups&&DB.lockedLineups[wid]);
 }
 function getStartersForWeek(tid,wid){
   if(DB.lockedLineups&&DB.lockedLineups[wid]&&DB.lockedLineups[wid][tid])
@@ -493,21 +486,6 @@ async function saveDB(){
   }
 }
 
-async function runAutoLock(){
-  if(!DB.lockedLineups)DB.lockedLineups={};
-  let anyLocked=false;
-  (DB.weeks||[]).forEach(wk=>{
-    if(!DB.lockedLineups[wk.id]&&wk.lockDate&&Date.now()>=wk.lockDate){
-      DB.lockedLineups[wk.id]={};
-      TEAMS.filter(t=>t.id!=='commissioner').forEach(t=>{
-        DB.lockedLineups[wk.id][t.id]=[...((DB.lineups&&DB.lineups[t.id]?DB.lineups[t.id].starters:[])||[])];
-      });
-      anyLocked=true;
-    }
-  });
-  if(anyLocked)await saveDB();
-}
-
 // ─── BOOT ────────────────────────────────────────────────────
 async function boot(){
   try{
@@ -516,9 +494,7 @@ async function boot(){
       DB = snap.data();
       if(!DB.lockedLineups)DB.lockedLineups={};
       if(!DB.playerPool)DB.playerPool=[...DEFAULT_PLAYER_POOL];
-      if(!DB.weeks||DB.weeks.length===0)DB.weeks=[{id:'w1',name:'Players Championship',lockDate:nextMondayMidnight(Date.now())}];
-      // backfill lockDate
-      DB.weeks.forEach(w=>{if(!w.lockDate)w.lockDate=nextMondayMidnight(Date.now());});
+      if(!DB.weeks||DB.weeks.length===0)DB.weeks=[{id:'w1',name:'Players Championship'}];
     } else {
       // First run — initialise default state
       const nonComm=TEAMS.filter(t=>t.id!=='commissioner');
@@ -526,7 +502,7 @@ async function boot(){
         teamNames: Object.fromEntries(TEAMS.map(t=>[t.id,t.name])),
         rosters: Object.fromEntries(nonComm.map(t=>[t.id,[]])),
         lineups: Object.fromEntries(nonComm.map(t=>[t.id,{starters:[],bench:[]}])),
-        weeks: [{id:'w1',name:'Players Championship',lockDate:nextMondayMidnight(Date.now())}],
+        weeks: [{id:'w1',name:'Players Championship'}],
         scores: {},
         playerPool: [...DEFAULT_PLAYER_POOL],
         transactions: [],
@@ -542,7 +518,6 @@ async function boot(){
         refreshUI();
       }
     });
-    await runAutoLock();
     document.getElementById('loading-screen').style.display='none';
     document.getElementById('login-page').style.display='flex';
     populateLoginTeams();
@@ -719,10 +694,8 @@ function renderMyTeam(){
     if(lockStatus)lockStatus.innerHTML='<span class="pill pr">🔒 LOCKED</span>';
   } else {
     banner.style.display='none';deadlineMsg.style.display='flex';
-    if(lockStatus&&wkObj.lockDate){
-      const d=new Date(wkObj.lockDate);
-      lockStatus.textContent=`Locks Mon ${d.toLocaleDateString('en-US',{month:'short',day:'numeric'})} midnight`;
-    } else if(lockStatus)lockStatus.textContent='';
+    if(lockStatus)lockStatus.textContent='';
+
   }
 
   // Starters
@@ -829,6 +802,7 @@ function renderFA(){
     return`<div class="fa-row"><span class="fa-name">${p}</span>${canAdd?`<button class="btn-a btn-add" onclick="pickupPlayer('${safeP(p)}')">+ Add</button>`:''}</div>`;
   }).join('');
 }
+window.renderFA=renderFA;
 
 async function pickupPlayer(player){
   if(!CU||CU.isComm)return;
@@ -1020,14 +994,12 @@ async function addWeek(){
   const inp=document.getElementById('new-wk-inp');
   const name=inp.value.trim();
   if(!name){toast('Enter a tournament name','tr');return;}
-  const id='w'+(( DB.weeks||[]).length+1);
-  const lockDate=nextMondayMidnight(Date.now());
+  const id='w'+((DB.weeks||[]).length+1);
   if(!DB.weeks)DB.weeks=[];
-  DB.weeks.push({id,name,lockDate});
+  DB.weeks.push({id,name});
   inp.value='';
   await saveDB();populateWeekSels();populateSnapWsel();renderStandings();
-  const d=new Date(lockDate);
-  toast(`Added: ${name} — locks Mon ${d.toLocaleDateString('en-US',{month:'short',day:'numeric'})} midnight ✓`);
+  toast(`Added: ${name} ✓`);
 }
 window.addWeek=addWeek;
 
