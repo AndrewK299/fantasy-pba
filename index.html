@@ -482,8 +482,8 @@ function getStartersForWeek(tid,wid){
 function allRostered(){const s=new Set();Object.values(DB.rosters).forEach(r=>r.forEach(p=>s.add(p)));return s;}
 function freeAgents(q=''){const r=allRostered();return DB.playerPool.filter(p=>!r.has(p)).filter(p=>!q||p.toLowerCase().includes(q.toLowerCase())).sort();}
 function teamById(id){return DB.teams.find(t=>t.id===id);}
-function safeP(s){return s.replace(/'/g,"&#39;");}
-
+function safeP(s){return s.replace(/'/g,"\\'");}
+  
 function weekScore(tid,wid){
   const starters=getStartersForWeek(tid,wid);
   const ws=DB.scores[wid]||{};
