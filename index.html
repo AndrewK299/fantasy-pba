@@ -450,7 +450,7 @@ const DEFAULT = {
 
 function loadDB(){
   try{
-    const r=localStorage.getItem('pba_v4');
+    const r=localStorage.getItem('pba_v5');
     if(r){
       const saved=JSON.parse(r);
       // Always use hardcoded teams (passwords, IDs) — but preserve any name changes
@@ -465,7 +465,7 @@ function loadDB(){
   }catch(e){}
   return JSON.parse(JSON.stringify(DEFAULT));
 }
-function saveDB(){localStorage.setItem('pba_v4',JSON.stringify(DB));}
+function saveDB(){localStorage.setItem('pba_v5',JSON.stringify(DB));}
 let DB=loadDB();
 let CU=null; // current user
 let modalCB=null;
