@@ -30,6 +30,10 @@ body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradi
 .btn-login{width:100%;background:linear-gradient(135deg,var(--acc),var(--acc2));border:none;border-radius:10px;color:#000;font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;padding:13px;cursor:pointer;transition:opacity .2s}
 .btn-login:hover{opacity:.88}
 .login-err{font-size:13px;color:var(--red);text-align:center;margin-top:10px;min-height:18px}
+#loading-screen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:999;flex-direction:column;gap:16px}
+.loading-spinner{width:40px;height:40px;border:3px solid var(--bdr);border-top-color:var(--acc);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-txt{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:var(--mut2)}
 #main-app{display:none;min-height:100vh}
 .topnav{position:sticky;top:0;z-index:100;background:rgba(14,14,16,.94);backdrop-filter:blur(16px);border-bottom:1px solid var(--bdr)}
 .topnav-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;height:56px;padding:0 16px;gap:8px}
@@ -147,8 +151,6 @@ body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradi
 .divider{height:1px;background:var(--bdr);margin:14px 0}
 .empty{text-align:center;padding:36px 16px;color:var(--mut2)}
 .empty-ico{font-size:32px;margin-bottom:8px}
-
-/* WEEK TABS */
 .week-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
 .week-tab{font-size:12px;font-weight:600;padding:5px 12px;border-radius:20px;border:1px solid var(--bdr);background:transparent;color:var(--mut2);cursor:pointer;transition:all .15s;white-space:nowrap}
 .week-tab:hover{color:var(--txt);border-color:var(--mut)}
@@ -160,8 +162,14 @@ body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradi
 <body>
 <div id="app">
 
+<!-- LOADING -->
+<div id="loading-screen">
+  <div class="loading-spinner"></div>
+  <div class="loading-txt">Loading League...</div>
+</div>
+
 <!-- LOGIN -->
-<div id="login-page">
+<div id="login-page" style="display:none">
   <div class="login-box">
     <div class="login-hd">
       <span class="login-icon">🎳</span>
@@ -214,19 +222,15 @@ body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradi
     </div>
   </nav>
 
-  <!-- STANDINGS -->
   <div class="page active" id="page-standings">
     <div class="ph"><div class="ptitle">Standings</div><div class="psub" id="stnd-sub"></div></div>
     <div class="ovr card">
-      <table class="tbl" id="stnd-tbl"><thead><tr id="stnd-head"></tr></thead><tbody id="stnd-body"></tbody></table>
+      <table class="tbl"><thead><tr id="stnd-head"></tr></thead><tbody id="stnd-body"></tbody></table>
     </div>
   </div>
 
-  <!-- MY TEAM -->
   <div class="page" id="page-myteam">
     <div class="ph"><div class="ptitle" id="mt-title">My Team</div><div class="psub">Manage your lineup and roster</div></div>
-
-    <!-- Team name -->
     <div class="card" style="margin-bottom:16px">
       <div class="card-hd"><div class="card-title">Team Settings</div></div>
       <div class="card-body">
@@ -236,8 +240,6 @@ body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradi
         </div>
       </div>
     </div>
-
-    <!-- Week selector -->
     <div class="card" style="margin-bottom:16px">
       <div class="card-hd">
         <div class="card-title">Select Week</div>
@@ -245,15 +247,11 @@ body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradi
       </div>
       <div class="card-body">
         <div class="week-tabs" id="mt-week-tabs"></div>
-        <div style="font-size:11px;color:var(--mut);margin-top:4px">
-          🔒 Red = locked &nbsp;|&nbsp; ● Gold = selected &nbsp;|&nbsp; ○ Grey = upcoming
-        </div>
+        <div style="font-size:11px;color:var(--mut);margin-top:4px">🔒 Red = locked &nbsp;|&nbsp; ● Gold = selected &nbsp;|&nbsp; ○ Grey = upcoming</div>
       </div>
     </div>
-
     <div id="mt-locked-banner" class="lock-banner" style="display:none">🔒 This week's lineup is locked — your submitted starters are shown below and will be used for scoring.</div>
     <div id="mt-deadline-msg" style="font-size:13px;color:var(--mut2);margin-bottom:16px;display:flex;align-items:center;gap:6px"><span>⏰</span> Set your starting 5 before <strong style="color:var(--txt)">Monday midnight</strong> — lineups lock automatically at that time.</div>
-
     <div class="lineup-grid">
       <div class="card">
         <div class="card-hd"><div class="card-title">Starters</div><span class="pill pg">5 START</span></div>
@@ -270,26 +268,21 @@ body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradi
     </div>
   </div>
 
-  <!-- ROSTERS -->
   <div class="page" id="page-rosters">
     <div class="ph"><div class="ptitle">All Rosters</div><div class="psub">Every team's current roster</div></div>
     <div class="rosters-grid" id="rosters-grid"></div>
   </div>
 
-  <!-- LEADERS -->
   <div class="page" id="page-leaders">
     <div class="ph"><div class="ptitle">Player Leaders</div><div class="psub">All starters ranked by total points this season</div></div>
     <div class="card">
-      <table class="tbl" id="leaders-tbl">
-        <thead><tr>
-          <th style="width:40px"></th><th>PLAYER</th><th>TEAM</th><th style="text-align:right">PTS</th>
-        </tr></thead>
+      <table class="tbl">
+        <thead><tr><th style="width:40px"></th><th>PLAYER</th><th>TEAM</th><th style="text-align:right">PTS</th></tr></thead>
         <tbody id="leaders-body"></tbody>
       </table>
     </div>
   </div>
 
-  <!-- FREE AGENCY -->
   <div class="page" id="page-freeagency">
     <div class="ph"><div class="ptitle">Add / Drop</div><div class="psub">Pick up free agents and manage your roster</div></div>
     <div class="search-wrap"><input class="search-inp" type="text" id="fa-search" placeholder="Search player name..." oninput="renderFA()"></div>
@@ -299,16 +292,13 @@ body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradi
     </div>
   </div>
 
-  <!-- TRANSACTIONS -->
   <div class="page" id="page-transactions">
     <div class="ph"><div class="ptitle">Feed</div><div class="psub">League activity</div></div>
     <div class="card" id="tx-card"></div>
   </div>
 
-  <!-- COMMISSIONER -->
   <div class="page" id="page-commissioner">
     <div class="ph"><div class="ptitle">⚙️ Commissioner</div><div class="psub">Score entry, week management & player pool</div></div>
-
     <div class="card" style="margin-bottom:16px">
       <div class="card-hd"><div class="card-title">📋 Lineup Report</div></div>
       <div class="card-body">
@@ -317,7 +307,7 @@ body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradi
           <button class="btn-orange" onclick="generateReport()">Generate &amp; Lock Lineups</button>
           <button class="btn-a btn-drop" onclick="clearSnapshot()" style="font-size:12px">Clear Snapshot</button>
         </div>
-        <div class="mt2 txs txt-mut">Manually lock lineups for a week. Lineups also auto-lock at Monday midnight when any manager loads the page.</div>
+        <div class="mt2 txs txt-mut">Manually lock lineups for a week. Lineups also auto-lock at Monday midnight.</div>
         <div id="snap-status" class="mt2 txs"></div>
         <div id="lineup-report" style="display:none;margin-top:16px">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
@@ -328,7 +318,6 @@ body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradi
         </div>
       </div>
     </div>
-
     <div class="card">
       <div class="card-hd">
         <div class="card-title">Score Entry</div>
@@ -339,7 +328,6 @@ body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradi
       </div>
       <div class="card-body"><div class="comm-grid" id="sc-grid"></div></div>
     </div>
-
     <div class="card">
       <div class="card-hd"><div class="card-title">Add Tournament Week</div></div>
       <div class="card-body">
@@ -347,10 +335,9 @@ body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradi
           <input class="pool-inp" type="text" id="new-wk-inp" placeholder="Tournament name (e.g. US Open)" style="max-width:300px">
           <button class="btn-orange" onclick="addWeek()">+ Add Week</button>
         </div>
-        <div class="mt2 txs txt-mut">New weeks automatically lock on the following Monday at midnight.</div>
+        <div class="mt2 txs txt-mut">New weeks automatically lock the following Monday at midnight.</div>
       </div>
     </div>
-
     <div class="card">
       <div class="card-hd"><div class="card-title">Player Pool</div><span class="tsm txt-mut" id="pool-count">—</span></div>
       <div class="card-body">
@@ -368,7 +355,6 @@ body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradi
   </div>
 </div>
 
-<!-- MODAL -->
 <div class="modal-ov hidden" id="modal-ov">
   <div class="modal">
     <div class="modal-hd">
@@ -382,141 +368,93 @@ body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradi
     </div>
   </div>
 </div>
-
 <div class="toast hidden" id="toast"></div>
 </div>
 
-<script>
-// ─── DATA ────────────────────────────────────────────────────
-const DEFAULT = {
-  teams:[
-    {id:'brendans-ballers',  name:"Brendan's Ballers",    pw:'0073'},
-    {id:'shaqs-attack',      name:"Shaq's Attack",        pw:'5001'},
-    {id:'ryans-rolling',     name:"Ryan's Rolling Thunder",pw:'9031'},
-    {id:'pats-punishers',    name:"Pat's Punishers",      pw:'4197'},
-    {id:'andys-avengers',    name:"Andy's Avengers",      pw:'0059'},
-    {id:'kopecs-kingpins',   name:"Kopec's Kingpins",     pw:'1986'},
-    {id:'jeffs-jokers',      name:"Jeff's Jokers",        pw:'7067'},
-    {id:'dingers-ringers',   name:"Dinger's Ringers",     pw:'3675'},
-    {id:'commissioner',      name:'Commissioner',         pw:'commish2025'}
-  ],
-  rosters:{
-    'brendans-ballers':[],'shaqs-attack':[],'ryans-rolling':[],
-    'pats-punishers':[],'andys-avengers':[],'kopecs-kingpins':[],
-    'jeffs-jokers':[],'dingers-ringers':[],
-  },
-  lineups:{
-    'brendans-ballers':{starters:[],bench:[]},'shaqs-attack':{starters:[],bench:[]},
-    'ryans-rolling':{starters:[],bench:[]},'pats-punishers':{starters:[],bench:[]},
-    'andys-avengers':{starters:[],bench:[]},'kopecs-kingpins':{starters:[],bench:[]},
-    'jeffs-jokers':{starters:[],bench:[]},'dingers-ringers':{starters:[],bench:[]},
-  },
-  weeks:[{id:'w1',name:'Players Championship',lockDate:nextMondayMidnightStatic()}],
-  scores:{},
-  playerPool:[
-    'Andrew Anderson','DJ Archer','Cristian Azcona','Ryan Barnes','Chris Barnes','Dom Barrett',
-    'Jason Belmonte','Deo Benard','Brandon Bonta','DeeRonn Booker','Trey A Brand','Jakob Butturff',
-    'AJ Chapman','Sam Cooley','Cameron Crowe','Tom Daugherty','Patrick Dombrowski','Mason Edmondson',
-    'Rasmus Edvall','Graham Fach','Ethan Fiore','Tim Foy Jr.','Nate Garcia','Carlos E Granados',
-    'Gary Haines','Andrew H Hall','Packy Hanrahan','Mitch Hupe','Ryota Iguchi','Tyrell T Ingalls',
-    'Rafiq Ismail','AJ Johnson','Eric Jones','Tommy Jones','Tomas Kayhko','Marshall Kent',
-    'Alec Keplinger','Justin Knowles','Boog Krol','Thomas Larsen','Martin Larsen','Sean Lavery-Spahr',
-    'Francois Lavoie','Dallas Leong','Tun Ameerul Luqman Al Hakim','Shawn Maldonado','Bailey Mavrick',
-    'Kevin McCune','Kyle C Michalosky','Brad Miller','BJ Moore','Anthony Neuer','Johnathan Norman',
-    'Bill O\'Neill','Matt Ogle','Wei Siong Darren Ong','Nick Pate','Riley Patton','Jean Perez',
-    'Jake Peters','CJ Petrin','Kris Prather','Nate Purches','Sean Rash','Spencer Robarge',
-    'Trevor Roberts','Brian Robinson','Ben Robinson','Nathan Ruest-Lajoie','Brandon Runk',
-    'Ronnie Russell','Matt Russo','Julian Salinas','Matt Sanders','Kyle Sherman','David Simard',
-    'Anthony Simonsen','Chris Sloan','Tom Smallwood','Jason Sterner','Hayden Stippich','Nate Stubler',
-    'Jesper Svensson','EJ Tackett','Zac Tackett','Santtu Tahvanainen','Timmy Tan','Darren Tang',
-    'Matt Taylor','Richie Teece','Kyle Troup','Chris Via','Zach Weidman','Zach Wilkins',
-    'Stu Williams','Keven Williams'
-  ],
-  transactions:[],
-  lockedLineups:{}
+<!-- Firebase -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAztQWBaOFadqndXxsLwJsOl3JhjgZG214",
+  authDomain: "fantasy-pba.firebaseapp.com",
+  projectId: "fantasy-pba",
+  storageBucket: "fantasy-pba.firebasestorage.app",
+  messagingSenderId: "345668713960",
+  appId: "1:345668713960:web:2deb6b20fbd34eda17785d"
 };
 
-// Called before DB loads so DEFAULT weeks get a lockDate
-function nextMondayMidnightStatic(){
-  const d=new Date();
-  const day=d.getDay();
-  const daysUntil=day===1?7:(8-day)%7||7;
-  d.setDate(d.getDate()+daysUntil);
-  d.setHours(0,0,0,0);
-  return d.getTime();
-}
+const firebaseApp = initializeApp(firebaseConfig);
+const db = getFirestore(firebaseApp);
+const DB_DOC = doc(db, 'league', 'state');
+
+// ─── STATIC DATA ─────────────────────────────────────────────
+const TEAMS = [
+  {id:'brendans-ballers',  name:"Brendan's Ballers",    pw:'0073'},
+  {id:'shaqs-attack',      name:"Shaq's Attack",        pw:'5001'},
+  {id:'ryans-rolling',     name:"Ryan's Rolling Thunder",pw:'9031'},
+  {id:'pats-punishers',    name:"Pat's Punishers",      pw:'4197'},
+  {id:'andys-avengers',    name:"Andy's Avengers",      pw:'0059'},
+  {id:'kopecs-kingpins',   name:"Kopec's Kingpins",     pw:'1986'},
+  {id:'jeffs-jokers',      name:"Jeff's Jokers",        pw:'7067'},
+  {id:'dingers-ringers',   name:"Dinger's Ringers",     pw:'3675'},
+  {id:'commissioner',      name:'Commissioner',         pw:'commish2025'}
+];
+const DEFAULT_PLAYER_POOL = [
+  'Andrew Anderson','DJ Archer','Cristian Azcona','Ryan Barnes','Chris Barnes','Dom Barrett',
+  'Jason Belmonte','Deo Benard','Brandon Bonta','DeeRonn Booker','Trey A Brand','Jakob Butturff',
+  'AJ Chapman','Sam Cooley','Cameron Crowe','Tom Daugherty','Patrick Dombrowski','Mason Edmondson',
+  'Rasmus Edvall','Graham Fach','Ethan Fiore','Tim Foy Jr.','Nate Garcia','Carlos E Granados',
+  'Gary Haines','Andrew H Hall','Packy Hanrahan','Mitch Hupe','Ryota Iguchi','Tyrell T Ingalls',
+  'Rafiq Ismail','AJ Johnson','Eric Jones','Tommy Jones','Tomas Kayhko','Marshall Kent',
+  'Alec Keplinger','Justin Knowles','Boog Krol','Thomas Larsen','Martin Larsen','Sean Lavery-Spahr',
+  'Francois Lavoie','Dallas Leong','Tun Ameerul Luqman Al Hakim','Shawn Maldonado','Bailey Mavrick',
+  'Kevin McCune','Kyle C Michalosky','Brad Miller','BJ Moore','Anthony Neuer','Johnathan Norman',
+  "Bill O'Neill",'Matt Ogle','Wei Siong Darren Ong','Nick Pate','Riley Patton','Jean Perez',
+  'Jake Peters','CJ Petrin','Kris Prather','Nate Purches','Sean Rash','Spencer Robarge',
+  'Trevor Roberts','Brian Robinson','Ben Robinson','Nathan Ruest-Lajoie','Brandon Runk',
+  'Ronnie Russell','Matt Russo','Julian Salinas','Matt Sanders','Kyle Sherman','David Simard',
+  'Anthony Simonsen','Chris Sloan','Tom Smallwood','Jason Sterner','Hayden Stippich','Nate Stubler',
+  'Jesper Svensson','EJ Tackett','Zac Tackett','Santtu Tahvanainen','Timmy Tan','Darren Tang',
+  'Matt Taylor','Richie Teece','Kyle Troup','Chris Via','Zach Weidman','Zach Wilkins',
+  'Stu Williams','Keven Williams'
+];
+
+// ─── STATE ───────────────────────────────────────────────────
+let DB = null; // live data from Firestore
+let CU = null;
+let modalCB = null;
+let mtSelectedWeek = null;
+let unsubscribe = null;
+
+// ─── HELPERS ────────────────────────────────────────────────
 function nextMondayMidnight(from){
-  const d=new Date(from);
-  const day=d.getDay();
+  const d=new Date(from);const day=d.getDay();
   const daysUntil=day===1?7:(8-day)%7||7;
-  d.setDate(d.getDate()+daysUntil);
-  d.setHours(0,0,0,0);
-  return d.getTime();
+  d.setDate(d.getDate()+daysUntil);d.setHours(0,0,0,0);return d.getTime();
 }
-
-function loadDB(){
-  try{
-    const r=localStorage.getItem('pba_v5');
-    if(r){
-      const saved=JSON.parse(r);
-      const nameMap={};
-      if(saved.teams)saved.teams.forEach(t=>{nameMap[t.id]=t.name;});
-      saved.teams=DEFAULT.teams.map(t=>({...t,name:nameMap[t.id]||t.name}));
-      if(!saved.lockedLineups)saved.lockedLineups={};
-      if(!saved.playerPool)saved.playerPool=[...DEFAULT.playerPool];
-      // Backfill lockDate on weeks that don't have one
-      if(saved.weeks)saved.weeks.forEach(w=>{if(!w.lockDate)w.lockDate=nextMondayMidnightStatic();});
-      return saved;
-    }
-  }catch(e){}
-  return JSON.parse(JSON.stringify(DEFAULT));
-}
-function saveDB(){localStorage.setItem('pba_v5',JSON.stringify(DB));}
-let DB=loadDB();
-let CU=null;
-let modalCB=null;
-let mtSelectedWeek=null;
-
-// ─── AUTO-LOCK ───────────────────────────────────────────────
 function isWeekLocked(wid){
-  if(!DB.lockedLineups)DB.lockedLineups={};
-  if(DB.lockedLineups[wid])return true;
-  const wk=DB.weeks.find(w=>w.id===wid);
+  if(DB.lockedLineups&&DB.lockedLineups[wid])return true;
+  const wk=(DB.weeks||[]).find(w=>w.id===wid);
   if(!wk||!wk.lockDate)return false;
   return Date.now()>=wk.lockDate;
 }
-
-function runAutoLock(){
-  if(!DB.lockedLineups)DB.lockedLineups={};
-  let anyLocked=false;
-  DB.weeks.forEach(wk=>{
-    if(!DB.lockedLineups[wk.id]&&wk.lockDate&&Date.now()>=wk.lockDate){
-      DB.lockedLineups[wk.id]={};
-      DB.teams.filter(t=>t.id!=='commissioner').forEach(t=>{
-        DB.lockedLineups[wk.id][t.id]=[...(DB.lineups[t.id]||{starters:[]}).starters];
-      });
-      anyLocked=true;
-    }
-  });
-  if(anyLocked)saveDB();
-}
-
-// ─── HELPERS ────────────────────────────────────────────────
 function getStartersForWeek(tid,wid){
-  if(!DB.lockedLineups)DB.lockedLineups={};
-  if(DB.lockedLineups[wid]&&DB.lockedLineups[wid][tid])return DB.lockedLineups[wid][tid];
-  return (DB.lineups[tid]||{starters:[]}).starters;
+  if(DB.lockedLineups&&DB.lockedLineups[wid]&&DB.lockedLineups[wid][tid])
+    return DB.lockedLineups[wid][tid];
+  return (DB.lineups&&DB.lineups[tid]?DB.lineups[tid].starters:[])||[];
 }
-function allRostered(){const s=new Set();Object.values(DB.rosters).forEach(r=>r.forEach(p=>s.add(p)));return s;}
-function freeAgents(q=''){const r=allRostered();return DB.playerPool.filter(p=>!r.has(p)).filter(p=>!q||p.toLowerCase().includes(q.toLowerCase())).sort();}
-function teamById(id){return DB.teams.find(t=>t.id===id);}
+function allRostered(){const s=new Set();Object.values(DB.rosters||{}).forEach(r=>r.forEach(p=>s.add(p)));return s;}
+function freeAgents(q=''){const r=allRostered();return (DB.playerPool||[]).filter(p=>!r.has(p)).filter(p=>!q||p.toLowerCase().includes(q.toLowerCase())).sort();}
+function teamById(id){return TEAMS.find(t=>t.id===id);}
 function safeP(s){return s.replace(/'/g,"\\'");}
 function weekScore(tid,wid){
   const starters=getStartersForWeek(tid,wid);
-  const ws=DB.scores[wid]||{};
+  const ws=(DB.scores&&DB.scores[wid])||{};
   return starters.reduce((sum,p)=>{const s=ws[p];return sum+(s?(s.dnf?-10:Number(s.pts||0)):0);},0);
 }
-function totalScore(tid){return DB.weeks.reduce((s,w)=>s+weekScore(tid,w.id),0);}
+function totalScore(tid){return (DB.weeks||[]).reduce((s,w)=>s+weekScore(tid,w.id),0);}
 function toast(msg,type='tg'){
   const t=document.getElementById('toast');
   t.textContent=msg;t.className='toast '+type;
@@ -535,18 +473,104 @@ function openModal(title,body,label,danger,cb){
   document.getElementById('modal-bd').innerHTML=body;
   const btn=document.getElementById('modal-confirm-btn');
   btn.textContent=label;btn.className='btn-confirm'+(danger?' danger':'');
-  modalCB=cb;
-  document.getElementById('modal-ov').classList.remove('hidden');
+  modalCB=cb;document.getElementById('modal-ov').classList.remove('hidden');
 }
 function closeModal(){document.getElementById('modal-ov').classList.add('hidden');modalCB=null;}
 function modalConfirm(){if(modalCB)modalCB();closeModal();}
-function logTx(type,msg){DB.transactions.unshift({type,msg,ts:Date.now()});if(DB.transactions.length>200)DB.transactions.pop();}
+function logTx(type,msg){
+  if(!DB.transactions)DB.transactions=[];
+  DB.transactions.unshift({type,msg,ts:Date.now()});
+  if(DB.transactions.length>200)DB.transactions.pop();
+}
+
+// ─── FIRESTORE ───────────────────────────────────────────────
+async function saveDB(){
+  try{
+    await setDoc(DB_DOC, DB);
+  }catch(e){
+    toast('Save failed — check connection','tr');
+    console.error(e);
+  }
+}
+
+async function runAutoLock(){
+  if(!DB.lockedLineups)DB.lockedLineups={};
+  let anyLocked=false;
+  (DB.weeks||[]).forEach(wk=>{
+    if(!DB.lockedLineups[wk.id]&&wk.lockDate&&Date.now()>=wk.lockDate){
+      DB.lockedLineups[wk.id]={};
+      TEAMS.filter(t=>t.id!=='commissioner').forEach(t=>{
+        DB.lockedLineups[wk.id][t.id]=[...((DB.lineups&&DB.lineups[t.id]?DB.lineups[t.id].starters:[])||[])];
+      });
+      anyLocked=true;
+    }
+  });
+  if(anyLocked)await saveDB();
+}
+
+// ─── BOOT ────────────────────────────────────────────────────
+async function boot(){
+  try{
+    const snap = await getDoc(DB_DOC);
+    if(snap.exists()){
+      DB = snap.data();
+      if(!DB.lockedLineups)DB.lockedLineups={};
+      if(!DB.playerPool)DB.playerPool=[...DEFAULT_PLAYER_POOL];
+      if(!DB.weeks||DB.weeks.length===0)DB.weeks=[{id:'w1',name:'Players Championship',lockDate:nextMondayMidnight(Date.now())}];
+      // backfill lockDate
+      DB.weeks.forEach(w=>{if(!w.lockDate)w.lockDate=nextMondayMidnight(Date.now());});
+    } else {
+      // First run — initialise default state
+      const nonComm=TEAMS.filter(t=>t.id!=='commissioner');
+      DB = {
+        teamNames: Object.fromEntries(TEAMS.map(t=>[t.id,t.name])),
+        rosters: Object.fromEntries(nonComm.map(t=>[t.id,[]])),
+        lineups: Object.fromEntries(nonComm.map(t=>[t.id,{starters:[],bench:[]}])),
+        weeks: [{id:'w1',name:'Players Championship',lockDate:nextMondayMidnight(Date.now())}],
+        scores: {},
+        playerPool: [...DEFAULT_PLAYER_POOL],
+        transactions: [],
+        lockedLineups: {}
+      };
+      await saveDB();
+    }
+    // Subscribe to live updates
+    unsubscribe = onSnapshot(DB_DOC, docSnap=>{
+      if(docSnap.exists()&&CU){
+        DB = docSnap.data();
+        if(!DB.lockedLineups)DB.lockedLineups={};
+        refreshUI();
+      }
+    });
+    await runAutoLock();
+    document.getElementById('loading-screen').style.display='none';
+    document.getElementById('login-page').style.display='flex';
+    populateLoginTeams();
+  }catch(e){
+    console.error(e);
+    document.querySelector('.loading-txt').textContent='Connection error — check console';
+  }
+}
+
+function refreshUI(){
+  if(!CU)return;
+  renderStandings();
+  renderRosters();
+  renderLeaders();
+  renderFA();
+  renderTransactions();
+  const activePage=document.querySelector('.page.active');
+  if(activePage){
+    if(activePage.id==='page-myteam')renderMyTeam();
+    if(activePage.id==='page-commissioner'&&CU.isComm){populateSnapWsel();renderScoreEntry();renderPoolList();}
+  }
+}
 
 // ─── AUTH ────────────────────────────────────────────────────
 function populateLoginTeams(){
   const sel=document.getElementById('login-team');
   sel.innerHTML='<option value="">-- Choose team --</option>';
-  DB.teams.forEach(t=>{const o=document.createElement('option');o.value=t.id;o.textContent=t.name;sel.appendChild(o);});
+  TEAMS.forEach(t=>{const o=document.createElement('option');o.value=t.id;o.textContent=(DB.teamNames&&DB.teamNames[t.id])||t.name;sel.appendChild(o);});
 }
 function doLogin(){
   const tid=document.getElementById('login-team').value;
@@ -556,19 +580,23 @@ function doLogin(){
   const team=teamById(tid);
   if(!team||team.pw!==pw){err.textContent='Incorrect password.';return;}
   err.textContent='';
-  CU={teamId:tid,teamName:team.name,isComm:tid==='commissioner'};
+  const displayName=(DB.teamNames&&DB.teamNames[tid])||team.name;
+  CU={teamId:tid,teamName:displayName,isComm:tid==='commissioner'};
   document.getElementById('login-page').style.display='none';
   document.getElementById('main-app').style.display='block';
-  document.getElementById('nav-badge').textContent=team.name;
-  const mobBadge=document.getElementById('nav-badge-mob');
-  if(mobBadge)mobBadge.textContent=team.name;
+  document.getElementById('nav-badge').textContent=displayName;
+  document.getElementById('nav-badge-mob').textContent=displayName;
   document.getElementById('comm-mob').style.display=CU.isComm?'':'none';
   document.getElementById('myteam-mob').style.display=CU.isComm?'none':'';
   document.getElementById('comm-btn').style.display=CU.isComm?'':'none';
   document.getElementById('myteam-btn').style.display=CU.isComm?'none':'';
   initApp();
 }
+window.doLogin=doLogin;
+
 function toggleMobileMenu(){document.getElementById('mobile-menu').classList.toggle('open');}
+window.toggleMobileMenu=toggleMobileMenu;
+
 function mobileGoto(name){
   document.getElementById('mobile-menu').classList.remove('open');
   const btns=document.querySelectorAll('.nav-links .nav-btn');
@@ -576,6 +604,8 @@ function mobileGoto(name){
   btns.forEach(b=>{if(b.getAttribute('onclick')&&b.getAttribute('onclick').includes("'"+name+"'"))match=b;});
   gotoPage(name,match);
 }
+window.mobileGoto=mobileGoto;
+
 function doLogout(){
   CU=null;
   document.getElementById('login-page').style.display='flex';
@@ -584,27 +614,23 @@ function doLogout(){
   document.getElementById('login-err').textContent='';
   populateLoginTeams();
 }
+window.doLogout=doLogout;
 
 // ─── INIT ────────────────────────────────────────────────────
 function initApp(){
-  runAutoLock();
+  mtSelectedWeek=(DB.weeks&&DB.weeks.length>0)?DB.weeks[DB.weeks.length-1].id:null;
   populateWeekSels();
   renderStandings();
-  if(!CU.isComm){
-    mtSelectedWeek=DB.weeks[DB.weeks.length-1].id;
-    renderMyTeam();
-  }
+  if(!CU.isComm)renderMyTeam();
   renderRosters();renderLeaders();renderFA();renderTransactions();
-  if(CU.isComm){populateWeekSels();populateSnapWsel();renderScoreEntry();renderPoolList();}
+  if(CU.isComm){populateSnapWsel();renderScoreEntry();renderPoolList();}
   gotoPage('standings',document.querySelector('.nav-btn'));
 }
 function populateWeekSels(){
   const sel=document.getElementById('sc-wsel');if(!sel)return;
   sel.innerHTML='';
-  DB.weeks.forEach((w,i)=>{
-    const o=document.createElement('option');o.value=w.id;o.textContent=`Wk ${i+1}: ${w.name}`;sel.appendChild(o);
-  });
-  sel.value=DB.weeks[DB.weeks.length-1].id;
+  (DB.weeks||[]).forEach((w,i)=>{const o=document.createElement('option');o.value=w.id;o.textContent=`Wk ${i+1}: ${w.name}`;sel.appendChild(o);});
+  if(DB.weeks&&DB.weeks.length)sel.value=DB.weeks[DB.weeks.length-1].id;
 }
 function gotoPage(name,btn){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
@@ -616,126 +642,111 @@ function gotoPage(name,btn){
   if(name==='rosters')renderRosters();
   if(name==='leaders')renderLeaders();
   if(name==='transactions')renderTransactions();
-  if(name==='commissioner'&&CU.isComm){populateSnapWsel();renderScoreEntry();renderPoolList();}
+  if(name==='commissioner'&&CU&&CU.isComm){populateSnapWsel();renderScoreEntry();renderPoolList();}
 }
+window.gotoPage=gotoPage;
 
 // ─── STANDINGS ───────────────────────────────────────────────
 function renderStandings(){
-  const wShow=DB.weeks;
-  const playedWeeks=wShow.filter(w=>DB.scores[w.id]&&Object.keys(DB.scores[w.id]).length>0);
+  if(!DB)return;
+  const wShow=DB.weeks||[];
+  const playedWeeks=wShow.filter(w=>DB.scores&&DB.scores[w.id]&&Object.keys(DB.scores[w.id]).length>0);
   const sub=document.getElementById('stnd-sub');
   if(sub)sub.textContent=playedWeeks.length===0?'No weeks scored yet':`As of Week ${playedWeeks.length}: ${playedWeeks[playedWeeks.length-1].name}`;
   document.getElementById('stnd-head').innerHTML=`<th style="width:40px"></th><th>TEAM</th><th style="text-align:right">TOTAL</th><th style="text-align:right">LAST WK</th>`;
-  const teams=DB.teams.filter(t=>t.id!=='commissioner');
+  const teams=TEAMS.filter(t=>t.id!=='commissioner');
   const sorted=[...teams].sort((a,b)=>totalScore(b.id)-totalScore(a.id));
-  const body=document.getElementById('stnd-body');
-  body.innerHTML='';
+  const body=document.getElementById('stnd-body');body.innerHTML='';
   sorted.forEach((team,i)=>{
-    const rank=i+1;
-    const rc=rank===1?'r1':rank===2?'r2':rank===3?'r3':'';
+    const rank=i+1;const rc=rank===1?'r1':rank===2?'r2':rank===3?'r3':'';
     const tot=wShow.reduce((s,w)=>s+weekScore(team.id,w.id),0);
     let lastWkScore=null,lastWkName='—';
     for(let j=wShow.length-1;j>=0;j--){
       const w=wShow[j];
-      if(DB.scores[w.id]&&Object.keys(DB.scores[w.id]).length>0){lastWkScore=weekScore(team.id,w.id);lastWkName=w.name;break;}
+      if(DB.scores&&DB.scores[w.id]&&Object.keys(DB.scores[w.id]).length>0){lastWkScore=weekScore(team.id,w.id);lastWkName=w.name;break;}
     }
     const anyData=lastWkScore!==null;
+    const displayName=(DB.teamNames&&DB.teamNames[team.id])||team.name;
     const youBadge=CU&&!CU.isComm&&team.id===CU.teamId?' <span class="pill pb" style="font-size:9px">YOU</span>':'';
     const lastCell=lastWkScore!==null
       ?`<td style="text-align:right"><span style="font-size:13px;font-weight:600;color:var(--txt)">${lastWkScore.toFixed(0)}</span><div style="font-size:10px;color:var(--mut)">${lastWkName.length>14?lastWkName.slice(0,13)+'…':lastWkName}</div></td>`
       :`<td style="text-align:right;color:var(--mut)">—</td>`;
     const tr=document.createElement('tr');
-    tr.innerHTML=`<td><span class="rank-n ${rc}">${rank}</span></td><td class="tnm">${team.name}${youBadge}</td><td class="tot">${anyData?tot.toFixed(0):'—'}</td>${lastCell}`;
+    tr.innerHTML=`<td><span class="rank-n ${rc}">${rank}</span></td><td class="tnm">${displayName}${youBadge}</td><td class="tot">${anyData?tot.toFixed(0):'—'}</td>${lastCell}`;
     body.appendChild(tr);
   });
 }
 
 // ─── MY TEAM ─────────────────────────────────────────────────
 function renderWeekTabs(){
-  const container=document.getElementById('mt-week-tabs');
-  container.innerHTML='';
-  DB.weeks.forEach((w,i)=>{
-    const locked=isWeekLocked(w.id);
-    const isActive=mtSelectedWeek===w.id;
+  const container=document.getElementById('mt-week-tabs');container.innerHTML='';
+  (DB.weeks||[]).forEach((w,i)=>{
+    const locked=isWeekLocked(w.id);const isActive=mtSelectedWeek===w.id;
     const btn=document.createElement('button');
-    let cls='week-tab';
-    if(isActive)cls+=' wt-active';
-    if(locked)cls+=' wt-locked';
-    btn.className=cls;
+    btn.className='week-tab'+(isActive?' wt-active':'')+(locked?' wt-locked':'');
     btn.textContent=`Wk ${i+1}: ${w.name}${locked?' 🔒':''}`;
     btn.onclick=()=>{mtSelectedWeek=w.id;renderMyTeam();};
     container.appendChild(btn);
   });
 }
-
 function renderMyTeam(){
-  if(!CU||CU.isComm)return;
+  if(!CU||CU.isComm||!DB)return;
   const tid=CU.teamId;
-  if(!mtSelectedWeek)mtSelectedWeek=DB.weeks[DB.weeks.length-1].id;
+  if(!mtSelectedWeek&&DB.weeks&&DB.weeks.length)mtSelectedWeek=DB.weeks[DB.weeks.length-1].id;
   const wid=mtSelectedWeek;
-  const wkObj=DB.weeks.find(w=>w.id===wid)||DB.weeks[DB.weeks.length-1];
-  const wkNum=DB.weeks.indexOf(wkObj)+1;
+  const wkObj=(DB.weeks||[]).find(w=>w.id===wid)||(DB.weeks&&DB.weeks[DB.weeks.length-1]);
+  if(!wkObj)return;
+  const wkNum=(DB.weeks||[]).indexOf(wkObj)+1;
   const locked=isWeekLocked(wid);
-  const lu=DB.lineups[tid]||{starters:[],bench:[]};
+  const lu=(DB.lineups&&DB.lineups[tid])||{starters:[],bench:[]};
+  // For scores always use locked snapshot if available, else live
   const scoringStarters=getStartersForWeek(tid,wid);
-  const ws=DB.scores[wid]||{};
+  const ws=(DB.scores&&DB.scores[wid])||{};
 
-  document.getElementById('mt-title').textContent=teamById(tid).name;
+  const displayName=(DB.teamNames&&DB.teamNames[tid])||teamById(tid).name;
+  document.getElementById('mt-title').textContent=displayName;
   const nameInp=document.getElementById('team-name-inp');
-  if(nameInp)nameInp.value=teamById(tid).name;
+  if(nameInp)nameInp.value=displayName;
   document.getElementById('mt-wk-pill').textContent=`WK ${wkNum}: ${wkObj.name.toUpperCase()}`;
 
   renderWeekTabs();
 
-  // Lock status
   const banner=document.getElementById('mt-locked-banner');
   const deadlineMsg=document.getElementById('mt-deadline-msg');
   const lockStatus=document.getElementById('mt-lock-status');
   if(locked){
-    banner.style.display='flex';
-    deadlineMsg.style.display='none';
+    banner.style.display='flex';deadlineMsg.style.display='none';
     if(lockStatus)lockStatus.innerHTML='<span class="pill pr">🔒 LOCKED</span>';
   } else {
-    banner.style.display='none';
-    deadlineMsg.style.display='flex';
+    banner.style.display='none';deadlineMsg.style.display='flex';
     if(lockStatus&&wkObj.lockDate){
       const d=new Date(wkObj.lockDate);
       lockStatus.textContent=`Locks Mon ${d.toLocaleDateString('en-US',{month:'short',day:'numeric'})} midnight`;
-    } else if(lockStatus){
-      lockStatus.textContent='';
-    }
+    } else if(lockStatus)lockStatus.textContent='';
   }
 
-  // Starters — show locked snapshot if locked, else live lineup
-  const displayStarters=locked?(DB.lockedLineups[wid][tid]||lu.starters):lu.starters;
-  const sl=document.getElementById('mt-starters');
-  sl.innerHTML='';
+  // Starters
+  const displayStarters=locked?((DB.lockedLineups[wid]&&DB.lockedLineups[wid][tid])||lu.starters):lu.starters;
+  const sl=document.getElementById('mt-starters');sl.innerHTML='';
   displayStarters.forEach(p=>{
     const s=ws[p];
     const ptsHtml=s?`<span class="ppts ${s.dnf?'neg':Number(s.pts||0)>0?'pos':'z'}">${s.dnf?'−10':Number(s.pts||0).toFixed(0)}</span>`:'';
     const actHtml=locked?'':`<button class="btn-a btn-bench" onclick="toBench('${safeP(p)}')">Bench</button>`;
     sl.innerHTML+=`<div class="prow"><span class="pdot s"></span><span class="pname">${p}</span>${ptsHtml}${actHtml}</div>`;
   });
-  if(!locked){
-    for(let i=displayStarters.length;i<5;i++){
-      sl.innerHTML+=`<div class="prow"><span class="pdot s" style="background:var(--mut)"></span><span class="txt-mut tsm" style="flex:1;font-style:italic">Empty slot</span></div>`;
-    }
-  }
+  if(!locked){for(let i=displayStarters.length;i<5;i++)sl.innerHTML+=`<div class="prow"><span class="pdot s" style="background:var(--mut)"></span><span class="txt-mut tsm" style="flex:1;font-style:italic">Empty slot</span></div>`;}
 
   // Bench
-  const bl=document.getElementById('mt-bench');
-  bl.innerHTML='';
-  lu.bench.forEach(p=>{
+  const bl=document.getElementById('mt-bench');bl.innerHTML='';
+  (lu.bench||[]).forEach(p=>{
     const acts=locked
       ?`<span class="pill py" style="font-size:9px">BENCH</span>`
       :`<div class="flex gap2"><button class="btn-a btn-start" onclick="toStarter('${safeP(p)}')">Start</button><button class="btn-a btn-drop" onclick="confirmDrop('${safeP(p)}')">Drop</button></div>`;
     bl.innerHTML+=`<div class="prow"><span class="pdot b"></span><span class="pname">${p}</span>${acts}</div>`;
   });
-  if(lu.bench.length===0){
-    bl.innerHTML='<div class="empty" style="padding:16px"><div class="empty-ico" style="font-size:20px">🪑</div><div>No bench players</div></div>';
-  }
+  if(!lu.bench||lu.bench.length===0)bl.innerHTML='<div class="empty" style="padding:16px"><div class="empty-ico" style="font-size:20px">🪑</div><div>No bench players</div></div>';
 
-  // Scores
+  // Scores — always based on scoringStarters (locked snapshot or live)
   const msc=document.getElementById('mt-scores');
   const anyScore=scoringStarters.some(p=>ws[p]);
   if(!anyScore){
@@ -743,9 +754,7 @@ function renderMyTeam(){
   } else {
     let tot=0;msc.innerHTML='';
     scoringStarters.forEach(p=>{
-      const s=ws[p];
-      const pts=s?(s.dnf?-10:Number(s.pts||0)):0;
-      tot+=pts;
+      const s=ws[p];const pts=s?(s.dnf?-10:Number(s.pts||0)):0;tot+=pts;
       const cls=pts<0?'txt-red':pts>0?'txt-acc':'txt-mut';
       msc.innerHTML+=`<div class="sc-row"><span class="sc-pname">${p} <span class="pill pg" style="font-size:9px">START</span></span><span class="${cls} fw6" style="font-family:'Bebas Neue',sans-serif;font-size:20px">${s?(s.dnf?'−10':pts.toFixed(0)):'—'}</span></div>`;
     });
@@ -753,48 +762,63 @@ function renderMyTeam(){
   }
 }
 
-function saveTeamName(){
+async function saveTeamName(){
   const inp=document.getElementById('team-name-inp');
   const newName=inp.value.trim();
   if(!newName){toast('Enter a team name','tr');return;}
-  const team=teamById(CU.teamId);
-  const oldName=team.name;
+  if(!DB.teamNames)DB.teamNames={};
+  const oldName=DB.teamNames[CU.teamId]||teamById(CU.teamId).name;
   if(newName===oldName){toast('Name unchanged','tr');return;}
-  team.name=newName;CU.teamName=newName;
+  DB.teamNames[CU.teamId]=newName;
+  CU.teamName=newName;
   document.getElementById('nav-badge').textContent=newName;
   document.getElementById('mt-title').textContent=newName;
   logTx('rename',`Team renamed from "${oldName}" to "${newName}"`);
-  saveDB();renderStandings();renderRosters();renderTransactions();
+  await saveDB();renderStandings();renderRosters();renderTransactions();
   toast(`Team renamed to "${newName}" ✓`);
 }
-function toStarter(player){
-  if(isWeekLocked(mtSelectedWeek)){toast('This week is locked — lineup can\'t be changed.','tr');return;}
+window.saveTeamName=saveTeamName;
+
+async function toStarter(player){
+  if(isWeekLocked(mtSelectedWeek)){toast('This week is locked.','tr');return;}
+  if(!DB.lineups)DB.lineups={};
+  if(!DB.lineups[CU.teamId])DB.lineups[CU.teamId]={starters:[],bench:[]};
   const lu=DB.lineups[CU.teamId];
-  if(lu.starters.length>=5){toast('Already have 5 starters. Move one to bench first.','tr');return;}
-  lu.bench=lu.bench.filter(p=>p!==player);
-  if(!lu.starters.includes(player))lu.starters.push(player);
-  saveDB();renderMyTeam();toast(`${player} is now a starter ✓`);
+  if((lu.starters||[]).length>=5){toast('Already have 5 starters. Move one to bench first.','tr');return;}
+  lu.bench=(lu.bench||[]).filter(p=>p!==player);
+  if(!(lu.starters||[]).includes(player)){lu.starters=lu.starters||[];lu.starters.push(player);}
+  await saveDB();renderMyTeam();toast(`${player} is now a starter ✓`);
 }
-function toBench(player){
-  if(isWeekLocked(mtSelectedWeek)){toast('This week is locked — lineup can\'t be changed.','tr');return;}
+window.toStarter=toStarter;
+
+async function toBench(player){
+  if(isWeekLocked(mtSelectedWeek)){toast('This week is locked.','tr');return;}
+  if(!DB.lineups)DB.lineups={};
+  if(!DB.lineups[CU.teamId])DB.lineups[CU.teamId]={starters:[],bench:[]};
   const lu=DB.lineups[CU.teamId];
-  lu.starters=lu.starters.filter(p=>p!==player);
-  if(!lu.bench.includes(player))lu.bench.push(player);
+  lu.starters=(lu.starters||[]).filter(p=>p!==player);
+  if(!(lu.bench||[]).includes(player)){lu.bench=lu.bench||[];lu.bench.push(player);}
   logTx('lineup',`${CU.teamName} moved ${player} to bench`);
-  saveDB();renderMyTeam();toast(`${player} moved to bench`);
+  await saveDB();renderMyTeam();toast(`${player} moved to bench`);
 }
+window.toBench=toBench;
+
 function confirmDrop(player){
-  if(DB.lineups[CU.teamId].starters.includes(player)){toast('Move player to bench before dropping.','tr');return;}
-  openModal('Drop Player',`<p style="font-size:15px;line-height:1.6">Drop <strong>${player}</strong> from your roster? They will immediately become a free agent available to any team.</p>`,'Drop',true,()=>{
-    DB.rosters[CU.teamId]=DB.rosters[CU.teamId].filter(p=>p!==player);
-    DB.lineups[CU.teamId].bench=DB.lineups[CU.teamId].bench.filter(p=>p!==player);
+  if((DB.lineups&&DB.lineups[CU.teamId]&&DB.lineups[CU.teamId].starters||[]).includes(player)){
+    toast('Move player to bench before dropping.','tr');return;
+  }
+  openModal('Drop Player',`<p style="font-size:15px;line-height:1.6">Drop <strong>${player}</strong> from your roster? They will immediately become a free agent.</p>`,'Drop',true,async()=>{
+    DB.rosters[CU.teamId]=(DB.rosters[CU.teamId]||[]).filter(p=>p!==player);
+    DB.lineups[CU.teamId].bench=(DB.lineups[CU.teamId].bench||[]).filter(p=>p!==player);
     logTx('drop',`${CU.teamName} dropped ${player}`);
-    saveDB();renderMyTeam();renderFA();toast(`${player} dropped`,'tr');
+    await saveDB();renderMyTeam();renderFA();toast(`${player} dropped`,'tr');
   });
 }
+window.confirmDrop=confirmDrop;
 
 // ─── FREE AGENCY ─────────────────────────────────────────────
 function renderFA(){
+  if(!DB)return;
   const q=document.getElementById('fa-search').value||'';
   const fas=freeAgents(q);
   document.getElementById('fa-count').textContent=`${fas.length} available`;
@@ -805,70 +829,81 @@ function renderFA(){
     return`<div class="fa-row"><span class="fa-name">${p}</span>${canAdd?`<button class="btn-a btn-add" onclick="pickupPlayer('${safeP(p)}')">+ Add</button>`:''}</div>`;
   }).join('');
 }
-function pickupPlayer(player){
+
+async function pickupPlayer(player){
   if(!CU||CU.isComm)return;
+  if(!DB.rosters)DB.rosters={};
+  if(!DB.rosters[CU.teamId])DB.rosters[CU.teamId]=[];
+  if(!DB.lineups)DB.lineups={};
+  if(!DB.lineups[CU.teamId])DB.lineups[CU.teamId]={starters:[],bench:[]};
   const roster=DB.rosters[CU.teamId];
   if(roster.length>=10){
     const lu=DB.lineups[CU.teamId];
-    const starterOpts=lu.starters.map(p=>`<option value="${safeP(p)}">[STARTER] ${p}</option>`).join('');
-    const benchOpts=lu.bench.map(p=>`<option value="${safeP(p)}">[BENCH] ${p}</option>`).join('');
+    const starterOpts=(lu.starters||[]).map(p=>`<option value="${safeP(p)}">[STARTER] ${p}</option>`).join('');
+    const benchOpts=(lu.bench||[]).map(p=>`<option value="${safeP(p)}">[BENCH] ${p}</option>`).join('');
     openModal('Roster Full — Drop a Player',
-      `<p style="font-size:14px;margin-bottom:12px">Your roster is full (10/10). Select a player to drop in order to add <strong>${player}</strong>.</p>
-       <select class="fsel" id="drop-sel" style="margin-bottom:0">${starterOpts}${benchOpts}</select>
-       <p style="font-size:12px;color:var(--mut2);margin-top:8px">⚠️ Dropping a starter will leave an empty slot in your lineup.</p>`,
-      'Add & Drop',false,()=>{
+      `<p style="font-size:14px;margin-bottom:12px">Roster full (10/10). Select a player to drop to add <strong>${player}</strong>.</p>
+       <select class="fsel" id="drop-sel" style="margin-bottom:0">${starterOpts}${benchOpts}</select>`,
+      'Add & Drop',false,async()=>{
         const dropPlayer=document.getElementById('drop-sel').value;
         DB.rosters[CU.teamId]=DB.rosters[CU.teamId].filter(p=>p!==dropPlayer);
-        DB.lineups[CU.teamId].starters=DB.lineups[CU.teamId].starters.filter(p=>p!==dropPlayer);
-        DB.lineups[CU.teamId].bench=DB.lineups[CU.teamId].bench.filter(p=>p!==dropPlayer);
+        DB.lineups[CU.teamId].starters=(DB.lineups[CU.teamId].starters||[]).filter(p=>p!==dropPlayer);
+        DB.lineups[CU.teamId].bench=(DB.lineups[CU.teamId].bench||[]).filter(p=>p!==dropPlayer);
         DB.rosters[CU.teamId].push(player);DB.lineups[CU.teamId].bench.push(player);
         logTx('add',`${CU.teamName} added ${player}`);logTx('drop',`${CU.teamName} dropped ${dropPlayer}`);
-        saveDB();renderFA();renderMyTeam();renderRosters();renderTransactions();
+        await saveDB();renderFA();renderMyTeam();renderRosters();renderTransactions();
         toast(`Added ${player}, dropped ${dropPlayer} ✓`);
       });
     return;
   }
-  DB.rosters[CU.teamId].push(player);DB.lineups[CU.teamId].bench.push(player);
+  DB.rosters[CU.teamId].push(player);
+  DB.lineups[CU.teamId].bench=DB.lineups[CU.teamId].bench||[];
+  DB.lineups[CU.teamId].bench.push(player);
   logTx('add',`${CU.teamName} added ${player}`);
-  saveDB();renderFA();renderMyTeam();renderRosters();renderTransactions();
+  await saveDB();renderFA();renderMyTeam();renderRosters();renderTransactions();
   toast(`${player} added to roster ✓`);
 }
+window.pickupPlayer=pickupPlayer;
 
 // ─── ROSTERS ─────────────────────────────────────────────────
 function renderRosters(){
+  if(!DB)return;
   const g=document.getElementById('rosters-grid');
-  const teams=DB.teams.filter(t=>t.id!=='commissioner');
+  const teams=TEAMS.filter(t=>t.id!=='commissioner');
   g.innerHTML=teams.map(team=>{
-    const r=DB.rosters[team.id]||[];
-    const lu=DB.lineups[team.id]||{starters:[],bench:[]};
+    const r=(DB.rosters&&DB.rosters[team.id])||[];
+    const lu=(DB.lineups&&DB.lineups[team.id])||{starters:[],bench:[]};
+    const displayName=(DB.teamNames&&DB.teamNames[team.id])||team.name;
     const rows=r.map(p=>{
-      const isStart=lu.starters.includes(p);
+      const isStart=(lu.starters||[]).includes(p);
       return`<div class="prow"><span class="pdot ${isStart?'s':'b'}"></span><span class="pname">${p}</span><span class="pill ${isStart?'pg':'py'}" style="font-size:9px">${isStart?'START':'BENCH'}</span></div>`;
     }).join('');
     const youTag=CU&&!CU.isComm&&team.id===CU.teamId?' <span class="pill pb" style="font-size:9px">YOU</span>':'';
-    return`<div class="card"><div class="card-hd"><div class="card-title">${team.name}${youTag}</div></div><div class="card-body" style="padding:8px 14px">${rows}</div></div>`;
+    return`<div class="card"><div class="card-hd"><div class="card-title">${displayName}${youTag}</div></div><div class="card-body" style="padding:8px 14px">${rows||'<div class="empty" style="padding:12px"><div>Empty roster</div></div>'}</div></div>`;
   }).join('');
 }
 
 // ─── LEADERS ─────────────────────────────────────────────────
 function renderLeaders(){
+  if(!DB)return;
   const body=document.getElementById('leaders-body');if(!body)return;
   const playerMap={};
-  const teams=DB.teams.filter(t=>t.id!=='commissioner');
+  const teams=TEAMS.filter(t=>t.id!=='commissioner');
   teams.forEach(team=>{
+    const displayName=(DB.teamNames&&DB.teamNames[team.id])||team.name;
     const allStarters=new Set();
     if(DB.lockedLineups)Object.values(DB.lockedLineups).forEach(snap=>{if(snap[team.id])snap[team.id].forEach(p=>allStarters.add(p));});
-    (DB.lineups[team.id]||{starters:[]}).starters.forEach(p=>allStarters.add(p));
+    ((DB.lineups&&DB.lineups[team.id])?DB.lineups[team.id].starters||[]:[]).forEach(p=>allStarters.add(p));
     allStarters.forEach(p=>{
-      if(!playerMap[p])playerMap[p]={team:team.name,pts:0};
-      DB.weeks.forEach(w=>{
+      if(!playerMap[p])playerMap[p]={team:displayName,pts:0};
+      (DB.weeks||[]).forEach(w=>{
         const starters=getStartersForWeek(team.id,w.id);
-        if(starters.includes(p)){const s=(DB.scores[w.id]||{})[p];if(s)playerMap[p].pts+=s.dnf?-10:Number(s.pts||0);}
+        if(starters.includes(p)){const s=(DB.scores&&DB.scores[w.id]||{})[p];if(s)playerMap[p].pts+=s.dnf?-10:Number(s.pts||0);}
       });
     });
   });
   const sorted=Object.entries(playerMap).sort((a,b)=>b[1].pts-a[1].pts);
-  if(sorted.length===0){body.innerHTML=`<tr><td colspan="4"><div class="empty"><div class="empty-ico">🎳</div><div>No starters yet this season</div></div></td></tr>`;return;}
+  if(sorted.length===0){body.innerHTML=`<tr><td colspan="4"><div class="empty"><div class="empty-ico">🎳</div><div>No starters yet</div></div></td></tr>`;return;}
   body.innerHTML=sorted.map(([player,data],i)=>{
     const rank=i+1;const rc=rank===1?'r1':rank===2?'r2':rank===3?'r3':'';
     const ptsColor=data.pts<0?'color:var(--red)':data.pts>0?'color:var(--acc)':'color:var(--mut)';
@@ -878,8 +913,9 @@ function renderLeaders(){
 
 // ─── TRANSACTIONS ─────────────────────────────────────────────
 function renderTransactions(){
+  if(!DB)return;
   const c=document.getElementById('tx-card');
-  if(DB.transactions.length===0){c.innerHTML='<div class="empty"><div class="empty-ico">📰</div><div>No transactions yet</div></div>';return;}
+  if(!DB.transactions||DB.transactions.length===0){c.innerHTML='<div class="empty"><div class="empty-ico">📰</div><div>No transactions yet</div></div>';return;}
   const icons={add:'➕',drop:'➖',lineup:'📋',rename:'✏️'};
   const classes={add:'tx-add',drop:'tx-drop',lineup:'tx-lu',rename:'tx-lu'};
   c.innerHTML=DB.transactions.map(tx=>`<div class="tx-item"><div class="tx-ico ${classes[tx.type]||'tx-lu'}">${icons[tx.type]||'📋'}</div><div style="flex:1"><div class="tx-main">${tx.msg}</div></div><div class="tx-time">${timeFmt(tx.ts)}</div></div>`).join('');
@@ -889,28 +925,30 @@ function renderTransactions(){
 function populateSnapWsel(){
   const sel=document.getElementById('snap-wsel');if(!sel)return;
   sel.innerHTML='';
-  DB.weeks.forEach((w,i)=>{
+  (DB.weeks||[]).forEach((w,i)=>{
     const locked=isWeekLocked(w.id);
     const o=document.createElement('option');
     o.value=w.id;o.textContent=`Wk ${i+1}: ${w.name}${locked?' 🔒':''}`;
     sel.appendChild(o);
   });
-  sel.value=DB.weeks[DB.weeks.length-1].id;
+  if(DB.weeks&&DB.weeks.length)sel.value=DB.weeks[DB.weeks.length-1].id;
 }
-function generateReport(){
+async function generateReport(){
   const wid=document.getElementById('snap-wsel').value;
-  const wk=DB.weeks.find(w=>w.id===wid);
-  const wname=wk?wk.name:wid;const wnum=DB.weeks.indexOf(wk)+1;
+  const wk=(DB.weeks||[]).find(w=>w.id===wid);
+  const wname=wk?wk.name:wid;const wnum=(DB.weeks||[]).indexOf(wk)+1;
   if(!DB.lockedLineups)DB.lockedLineups={};
   DB.lockedLineups[wid]={};
-  const teams=DB.teams.filter(t=>t.id!=='commissioner');
-  teams.forEach(t=>{DB.lockedLineups[wid][t.id]=[...(DB.lineups[t.id]||{starters:[]}).starters];});
-  saveDB();renderScoreEntry();populateSnapWsel();
+  TEAMS.filter(t=>t.id!=='commissioner').forEach(t=>{
+    DB.lockedLineups[wid][t.id]=[...((DB.lineups&&DB.lineups[t.id]?DB.lineups[t.id].starters:[])||[])];
+  });
+  await saveDB();renderScoreEntry();populateSnapWsel();
   const now=new Date();
   const dateStr=now.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
   let report=`PBA FANTASY — WEEK ${wnum} LINEUP REPORT\n${wname}\nGenerated: ${dateStr}\n${'─'.repeat(40)}\n\n`;
-  teams.forEach(t=>{
-    report+=t.name+'\n';
+  TEAMS.filter(t=>t.id!=='commissioner').forEach(t=>{
+    const displayName=(DB.teamNames&&DB.teamNames[t.id])||t.name;
+    report+=displayName+'\n';
     (DB.lockedLineups[wid][t.id]||[]).forEach((p,i)=>{report+=`  ${i+1}. ${p}\n`;});
     report+='\n';
   });
@@ -919,40 +957,50 @@ function generateReport(){
   document.getElementById('snap-status').innerHTML=`<span style="color:var(--grn)">✓ Lineups locked for Week ${wnum}: ${wname}</span>`;
   toast('Lineup report generated ✓');
 }
-function clearSnapshot(){
+window.generateReport=generateReport;
+
+async function clearSnapshot(){
   const wid=document.getElementById('snap-wsel').value;
   if(DB.lockedLineups&&DB.lockedLineups[wid])delete DB.lockedLineups[wid];
-  saveDB();renderScoreEntry();populateSnapWsel();
+  await saveDB();renderScoreEntry();populateSnapWsel();
   document.getElementById('lineup-report').style.display='none';
-  document.getElementById('snap-status').innerHTML=`<span style="color:var(--yel)">Snapshot cleared — score entry now uses live lineups</span>`;
+  document.getElementById('snap-status').innerHTML=`<span style="color:var(--yel)">Snapshot cleared</span>`;
   toast('Snapshot cleared','tr');
 }
+window.clearSnapshot=clearSnapshot;
+
 function copyReport(){
-  const text=document.getElementById('lineup-report-text').textContent;
-  navigator.clipboard.writeText(text).then(()=>toast('Report copied ✓')).catch(()=>toast('Copy failed','tr'));
+  navigator.clipboard.writeText(document.getElementById('lineup-report-text').textContent)
+    .then(()=>toast('Report copied ✓')).catch(()=>toast('Copy failed','tr'));
 }
+window.copyReport=copyReport;
+
 function renderScoreEntry(){
-  const wid=document.getElementById('sc-wsel').value||DB.weeks[0].id;
-  const ws=DB.scores[wid]||{};
-  const teams=DB.teams.filter(t=>t.id!=='commissioner');
+  if(!DB)return;
+  const wid=document.getElementById('sc-wsel').value||(DB.weeks&&DB.weeks[0]?DB.weeks[0].id:'');
+  const ws=(DB.scores&&DB.scores[wid])||{};
+  const teams=TEAMS.filter(t=>t.id!=='commissioner');
   const snapped=DB.lockedLineups&&DB.lockedLineups[wid];
   const g=document.getElementById('sc-grid');
   const statusHtml=snapped
     ?`<div style="background:rgba(74,222,128,.08);border:1px solid rgba(74,222,128,.2);border-radius:8px;padding:10px 14px;margin-bottom:16px;font-size:13px;color:var(--grn)">🔒 Lineups locked for this week.</div>`
-    :`<div style="background:rgba(253,224,71,.08);border:1px solid rgba(253,224,71,.2);border-radius:8px;padding:10px 14px;margin-bottom:16px;font-size:13px;color:var(--yel)">⚠️ Lineups not yet locked. Score entry shows current live lineups.</div>`;
+    :`<div style="background:rgba(253,224,71,.08);border:1px solid rgba(253,224,71,.2);border-radius:8px;padding:10px 14px;margin-bottom:16px;font-size:13px;color:var(--yel)">⚠️ Lineups not yet locked. Showing live lineups.</div>`;
   g.innerHTML=statusHtml+teams.map(team=>{
+    const displayName=(DB.teamNames&&DB.teamNames[team.id])||team.name;
     const starters=getStartersForWeek(team.id,wid);
     const rows=starters.map(p=>{
       const s=ws[p]||{};
       return`<div class="sc-row"><span class="sc-pname">${p}</span><input class="sc-inp" type="number" step="0.01" placeholder="pts" value="${s.pts!=null?s.pts:''}" id="sc_${wid}_${safeP(p).replace(/\s/g,'_')}"><label class="dnf-lbl"><input type="checkbox" id="dnf_${wid}_${safeP(p).replace(/\s/g,'_')}" ${s.dnf?'checked':''}> DNF</label></div>`;
     }).join('');
-    return`<div class="card" style="margin-bottom:0"><div class="card-hd"><div class="card-title" style="font-size:15px">${team.name}${snapped?'':' <span class="pill py" style="font-size:9px">LIVE</span>'}</div></div><div class="card-body" style="padding:8px 14px">${rows}</div></div>`;
+    return`<div class="card" style="margin-bottom:0"><div class="card-hd"><div class="card-title" style="font-size:15px">${displayName}</div></div><div class="card-body" style="padding:8px 14px">${rows||'<div class="empty" style="padding:10px">No starters set</div>'}</div></div>`;
   }).join('');
 }
-function saveScores(){
+
+async function saveScores(){
   const wid=document.getElementById('sc-wsel').value;
+  if(!DB.scores)DB.scores={};
   if(!DB.scores[wid])DB.scores[wid]={};
-  DB.teams.filter(t=>t.id!=='commissioner').forEach(team=>{
+  TEAMS.filter(t=>t.id!=='commissioner').forEach(team=>{
     getStartersForWeek(team.id,wid).forEach(p=>{
       const key=safeP(p).replace(/\s/g,'_');
       const inp=document.getElementById(`sc_${wid}_${key}`);
@@ -963,55 +1011,70 @@ function saveScores(){
       if(dnf||pts!==null)DB.scores[wid][p]={pts:pts||0,dnf};
     });
   });
-  saveDB();renderStandings();renderMyTeam();renderRosters();
+  await saveDB();renderStandings();renderMyTeam();renderRosters();
   toast('Scores saved ✓');
 }
-function addWeek(){
+window.saveScores=saveScores;
+
+async function addWeek(){
   const inp=document.getElementById('new-wk-inp');
   const name=inp.value.trim();
   if(!name){toast('Enter a tournament name','tr');return;}
-  const id='w'+(DB.weeks.length+1);
+  const id='w'+(( DB.weeks||[]).length+1);
   const lockDate=nextMondayMidnight(Date.now());
+  if(!DB.weeks)DB.weeks=[];
   DB.weeks.push({id,name,lockDate});
   inp.value='';
-  saveDB();populateWeekSels();populateSnapWsel();renderStandings();
+  await saveDB();populateWeekSels();populateSnapWsel();renderStandings();
   const d=new Date(lockDate);
   toast(`Added: ${name} — locks Mon ${d.toLocaleDateString('en-US',{month:'short',day:'numeric'})} midnight ✓`);
 }
+window.addWeek=addWeek;
+
 function renderPoolList(){
+  if(!DB)return;
   const rostered=allRostered();
-  document.getElementById('pool-count').textContent=`${DB.playerPool.length} in pool`;
-  const unique=[...new Set(DB.playerPool)].sort();
+  document.getElementById('pool-count').textContent=`${(DB.playerPool||[]).length} in pool`;
+  const unique=[...new Set(DB.playerPool||[])].sort();
   document.getElementById('pool-list').innerHTML=unique.map(p=>`<div class="pool-row">
     <span style="flex:1">${p}</span>
     <span class="pill ${rostered.has(p)?'pg':'txt-mut'}" style="font-size:9px">${rostered.has(p)?'ON ROSTER':'FREE'}</span>
     <button class="btn-a btn-drop" style="font-size:10px;padding:2px 7px" onclick="removeFromPool('${safeP(p)}')">✕</button>
   </div>`).join('');
 }
-function addToPool(){
+
+async function addToPool(){
   const inp=document.getElementById('pool-add-inp');
   const name=inp.value.trim();
   if(!name){toast('Enter a player name','tr');return;}
-  if(!DB.playerPool.includes(name)){DB.playerPool.push(name);saveDB();renderPoolList();renderFA();toast(`${name} added to pool ✓`);}
+  if(!DB.playerPool)DB.playerPool=[];
+  if(!DB.playerPool.includes(name)){DB.playerPool.push(name);await saveDB();renderPoolList();renderFA();toast(`${name} added to pool ✓`);}
   else toast('Already in pool','tr');
   inp.value='';
 }
-function bulkAddToPool(){
+window.addToPool=addToPool;
+
+async function bulkAddToPool(){
   const names=document.getElementById('pool-bulk-inp').value.split(/[\n,]+/).map(s=>s.trim()).filter(Boolean);
   let added=0;
+  if(!DB.playerPool)DB.playerPool=[];
   names.forEach(n=>{if(n&&!DB.playerPool.includes(n)){DB.playerPool.push(n);added++;}});
-  saveDB();renderPoolList();renderFA();
+  await saveDB();renderPoolList();renderFA();
   document.getElementById('pool-bulk-inp').value='';
   toast(`Added ${added} player${added!==1?'s':''} ✓`);
 }
-function removeFromPool(player){
-  DB.playerPool=DB.playerPool.filter(p=>p!==player);
-  saveDB();renderPoolList();renderFA();
-}
+window.bulkAddToPool=bulkAddToPool;
 
-// ─── BOOT ────────────────────────────────────────────────────
-populateLoginTeams();
+async function removeFromPool(player){
+  DB.playerPool=(DB.playerPool||[]).filter(p=>p!==player);
+  await saveDB();renderPoolList();renderFA();
+}
+window.removeFromPool=removeFromPool;
+
+window.closeModal=closeModal;
+window.modalConfirm=modalConfirm;
+
+boot();
 </script>
 </body>
 </html>
-
