@@ -108,8 +108,7 @@ body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradi
 .tx-item{display:flex;align-items:flex-start;gap:12px;padding:13px 16px;border-bottom:1px solid var(--bdr)}
 .tx-item:last-child{border-bottom:none}
 .tx-ico{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
-.tx-add{background:rgba(74,222,128,.12)}.tx-drop{background:rgba(248,113,113,.12)}.tx-lu{background:rgba(96,165,250,.12)}
-.tx-main{font-size:14px;font-weight:500;margin-bottom:2px}
+.tx-add{background:rgba(74,222,128,.12)}.tx-drop{background:rgba(248,113,113,.12)}.tx-lu{background:rgba(96,165,250,.12)}.tx-start{background:rgba(253,224,71,.12)}.tx-lock{background:rgba(248,113,113,.12)}.tx-main{font-size:14px;font-weight:500;margin-bottom:2px}
 .tx-time{font-size:12px;color:var(--mut);white-space:nowrap;margin-left:auto;padding-left:8px}
 .rosters-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:16px}
 .comm-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
@@ -760,6 +759,7 @@ async function toStarter(player){
   if((lu.starters||[]).length>=5){toast('Already have 5 starters. Move one to bench first.','tr');return;}
   lu.bench=(lu.bench||[]).filter(p=>p!==player);
   if(!(lu.starters||[]).includes(player)){lu.starters=lu.starters||[];lu.starters.push(player);}
+  logTx('start',`${CU.teamName} moved ${player} to starters`);
   await saveDB();renderMyTeam();toast(`${player} is now a starter ✓`);
 }
 window.toStarter=toStarter;
@@ -890,8 +890,8 @@ function renderTransactions(){
   if(!DB)return;
   const c=document.getElementById('tx-card');
   if(!DB.transactions||DB.transactions.length===0){c.innerHTML='<div class="empty"><div class="empty-ico">📰</div><div>No transactions yet</div></div>';return;}
-  const icons={add:'➕',drop:'➖',lineup:'📋',rename:'✏️'};
-  const classes={add:'tx-add',drop:'tx-drop',lineup:'tx-lu',rename:'tx-lu'};
+  const icons={add:'➕',drop:'➖',lineup:'📋',start:'⭐',rename:'✏️',lock:'🔒'};
+  const classes={add:'tx-add',drop:'tx-drop',lineup:'tx-lu',start:'tx-start',rename:'tx-lu',lock:'tx-lock'};
   c.innerHTML=DB.transactions.map(tx=>`<div class="tx-item"><div class="tx-ico ${classes[tx.type]||'tx-lu'}">${icons[tx.type]||'📋'}</div><div style="flex:1"><div class="tx-main">${tx.msg}</div></div><div class="tx-time">${timeFmt(tx.ts)}</div></div>`).join('');
 }
 
@@ -916,7 +916,8 @@ async function generateReport(){
   TEAMS.filter(t=>t.id!=='commissioner').forEach(t=>{
     DB.lockedLineups[wid][t.id]=[...((DB.lineups&&DB.lineups[t.id]?DB.lineups[t.id].starters:[])||[])];
   });
-  await saveDB();renderScoreEntry();populateSnapWsel();
+  logTx('lock',`Lineups locked for Week ${wnum}: ${wname}`);
+  await saveDB();renderScoreEntry();populateSnapWsel();renderTransactions();
   const now=new Date();
   const dateStr=now.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
   let report=`PBA FANTASY — WEEK ${wnum} LINEUP REPORT\n${wname}\nGenerated: ${dateStr}\n${'─'.repeat(40)}\n\n`;
