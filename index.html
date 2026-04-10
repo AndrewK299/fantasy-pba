@@ -623,6 +623,12 @@ window.gotoPage=gotoPage;
 // ─── STANDINGS ───────────────────────────────────────────────
 function renderStandings(){
   if(!DB)return;
+  const _wid = (DB.weeks||[])[DB.weeks.length-1]?.id;
+console.log('latest week id:', _wid);
+console.log('scores:', JSON.stringify((DB.scores||{})[_wid]));
+TEAMS.filter(t=>t.id!=='commissioner').forEach(t=>{
+  console.log(t.id, 'starters:', getStartersForWeek(t.id, _wid));
+});
   const wShow=DB.weeks||[];
   const playedWeeks=wShow.filter(w=>DB.scores&&DB.scores[w.id]&&Object.keys(DB.scores[w.id]).length>0);
   const sub=document.getElementById('stnd-sub');
