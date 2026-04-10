@@ -647,7 +647,17 @@ function renderStandings(){
       :`<td style="text-align:right;color:var(--mut)">—</td>`;
     const tr=document.createElement('tr');
     if(rank<=4)tr.style.background='rgba(74,222,128,.10)';
-    tr.innerHTML=`<td><span class="rank-n ${rc}">${rank}</span></td><td class="tnm">${displayName}${youBadge}</td><td><span style="font-family:'Bebas Neue',sans-serif;font-size:48px;color:var(--acc)">${anyData?tot.toFixed(0):'—'}</span></td>${lastCell}`;
+    // Check if there's an active (most recent) week with a locked lineup but missing scores for some starters
+const latestWeek = wShow[wShow.length - 1];
+const latestLocked = latestWeek && DB.lockedLineups && DB.lockedLineups[latestWeek.id];
+const latestStarters = latestLocked
+  ? (DB.lockedLineups[latestWeek.id][team.id] || [])
+  : ((DB.lineups && DB.lineups[team.id]) ? DB.lineups[team.id].starters || [] : []);
+const latestWS = (DB.scores && DB.scores[latestWeek?.id]) || {};
+const hasIncomplete = latestStarters.length > 0 && latestStarters.some(p => !latestWS[p]);
+const asterisk = hasIncomplete ? `<span style="color:var(--blu);font-size:22px;font-family:'Barlow',sans-serif;vertical-align:super;margin-left:2px" title="Scores not fully entered for current week">✱</span>` : '';
+
+tr.innerHTML=`<td><span class="rank-n ${rc}">${rank}</span></td><td class="tnm">${displayName}${youBadge}</td><td><span style="font-family:'Bebas Neue',sans-serif;font-size:48px;color:var(--acc)">${anyData?tot.toFixed(0):'—'}</span>${asterisk}</td>${lastCell}`;
     body.appendChild(tr);
   });
 }
