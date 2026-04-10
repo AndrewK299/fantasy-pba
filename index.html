@@ -649,12 +649,9 @@ function renderStandings(){
     if(rank<=4)tr.style.background='rgba(74,222,128,.10)';
     // Check if there's an active (most recent) week with a locked lineup but missing scores for some starters
 const latestWeek = wShow[wShow.length - 1];
-const latestLocked = latestWeek && DB.lockedLineups && DB.lockedLineups[latestWeek.id];
-const latestStarters = latestLocked
-  ? (DB.lockedLineups[latestWeek.id][team.id] || [])
-  : ((DB.lineups && DB.lineups[team.id]) ? DB.lineups[team.id].starters || [] : []);
-const latestWS = (DB.scores && DB.scores[latestWeek?.id]) || {};
+const latestWS = latestWeek ? ((DB.scores && DB.scores[latestWeek.id]) || {}) : {};
 const weekHasAnyScores = Object.keys(latestWS).length > 0;
+const latestStarters = latestWeek ? getStartersForWeek(team.id, latestWeek.id) : [];
 const hasIncomplete = weekHasAnyScores && latestStarters.length > 0 && latestStarters.some(p => !latestWS[p]);
 const asterisk = hasIncomplete ? `<span style="color:var(--blu);font-size:22px;font-family:'Barlow',sans-serif;vertical-align:super;margin-left:2px" title="Scores not fully entered for current week">✱</span>` : '';
 
