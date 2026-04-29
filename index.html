@@ -79,12 +79,13 @@ body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradi
 .pb{background:rgba(96,165,250,.12);color:var(--blu)}
 .py{background:rgba(253,224,71,.12);color:var(--yel)}
 .pa{background:rgba(245,166,35,.12);color:var(--acc)}
+.po{background:rgba(245,166,35,.15);color:var(--acc);border:1px solid rgba(245,166,35,.3)}
 .lineup-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 @media(max-width:620px){.lineup-grid{grid-template-columns:1fr}}
 .prow{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--bdr)}
 .prow:last-child{border-bottom:none}
 .pdot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-.pdot.s{background:var(--grn)}.pdot.b{background:var(--mut)}
+.pdot.s{background:var(--grn)}.pdot.b{background:var(--mut)}.pdot.e{background:var(--acc)}
 .pname{font-weight:500;font-size:20px;flex:1;line-height:1.3}
 .ppts{font-family:'Bebas Neue',sans-serif;font-size:24px}
 .ppts.pos{color:var(--acc)}.ppts.neg{color:var(--red)}.ppts.z{color:var(--mut)}
@@ -92,6 +93,7 @@ body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradi
 .btn-a:hover{background:var(--surf2);border-color:var(--mut)}
 .btn-start{border-color:rgba(96,165,250,.3);color:var(--blu)}.btn-start:hover{background:rgba(96,165,250,.1)}
 .btn-bench{border-color:rgba(253,224,71,.3);color:var(--yel)}.btn-bench:hover{background:rgba(253,224,71,.1)}
+.btn-emerg{border-color:rgba(245,166,35,.3);color:var(--acc)}.btn-emerg:hover{background:rgba(245,166,35,.1)}
 .btn-drop{border-color:rgba(248,113,113,.3);color:var(--red)}.btn-drop:hover{background:rgba(248,113,113,.1)}
 .btn-add{border-color:rgba(74,222,128,.3);color:var(--grn)}.btn-add:hover{background:rgba(74,222,128,.1)}
 .btn-orange{background:linear-gradient(135deg,var(--acc),var(--acc2));border:none;border-radius:8px;color:#000;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1px;padding:9px 18px;cursor:pointer;transition:opacity .2s}
@@ -156,18 +158,22 @@ body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradi
 .week-tab.wt-active{background:var(--acc);color:#000;border-color:var(--acc)}
 .week-tab.wt-locked{border-color:rgba(248,113,113,.4);color:var(--red)}
 .week-tab.wt-locked.wt-active{background:var(--red);color:#fff;border-color:var(--red)}
+.stnd-tabs{display:flex;gap:6px;margin-bottom:16px}
+.stnd-tab{font-size:13px;font-weight:600;padding:7px 16px;border-radius:20px;border:1px solid var(--bdr);background:transparent;color:var(--mut2);cursor:pointer;transition:all .15s}
+.stnd-tab:hover{color:var(--txt);border-color:var(--mut)}
+.stnd-tab.active{background:var(--acc);color:#000;border-color:var(--acc)}
+.playoff-badge{font-size:10px;font-weight:700;letter-spacing:1px;padding:2px 7px;border-radius:20px;background:rgba(245,166,35,.15);color:var(--acc);border:1px solid rgba(245,166,35,.3);white-space:nowrap}
+.consol-badge{font-size:10px;font-weight:700;letter-spacing:1px;padding:2px 7px;border-radius:20px;background:rgba(96,165,250,.1);color:var(--blu);border:1px solid rgba(96,165,250,.3);white-space:nowrap}
 </style>
 </head>
 <body>
 <div id="app">
 
-<!-- LOADING -->
 <div id="loading-screen">
   <div class="loading-spinner"></div>
   <div class="loading-txt">Loading League...</div>
 </div>
 
-<!-- LOGIN -->
 <div id="login-page" style="display:none">
   <div class="login-box">
     <div class="login-hd">
@@ -186,7 +192,6 @@ body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradi
   </div>
 </div>
 
-<!-- MAIN APP -->
 <div id="main-app">
   <nav class="topnav">
     <div class="topnav-inner">
@@ -223,8 +228,25 @@ body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradi
 
   <div class="page active" id="page-standings">
     <div class="ph"><div class="ptitle">Standings</div><div class="psub" id="stnd-sub"></div></div>
-    <div class="ovr card">
-      <table class="tbl"><thead><tr id="stnd-head"></tr></thead><tbody id="stnd-body"></tbody></table>
+    <div class="stnd-tabs">
+      <button class="stnd-tab active" onclick="switchStndTab('playoffs',this)">🏆 Playoffs</button>
+      <button class="stnd-tab" onclick="switchStndTab('consolation',this)">Consolation</button>
+      <button class="stnd-tab" onclick="switchStndTab('regular',this)">Regular Season</button>
+    </div>
+    <div id="stnd-playoffs">
+      <div class="ovr card">
+        <table class="tbl"><thead><tr id="stnd-head-po"></tr></thead><tbody id="stnd-body-po"></tbody></table>
+      </div>
+    </div>
+    <div id="stnd-consolation" style="display:none">
+      <div class="ovr card">
+        <table class="tbl"><thead><tr id="stnd-head-co"></tr></thead><tbody id="stnd-body-co"></tbody></table>
+      </div>
+    </div>
+    <div id="stnd-regular" style="display:none">
+      <div class="ovr card">
+        <table class="tbl"><thead><tr id="stnd-head-rs"></tr></thead><tbody id="stnd-body-rs"></tbody></table>
+      </div>
     </div>
   </div>
 
@@ -250,14 +272,14 @@ body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradi
       </div>
     </div>
     <div id="mt-locked-banner" class="lock-banner" style="display:none">🔒 This week's lineup is locked — your submitted starters are shown below and will be used for scoring.</div>
-    <div id="mt-deadline-msg" style="font-size:13px;color:var(--mut2);margin-bottom:16px;display:flex;align-items:center;gap:6px"><span>⏰</span> Set your starting 5 before <strong style="color:var(--txt)">Monday midnight</strong> — lineups lock automatically at that time.</div>
+    <div id="mt-deadline-msg" style="font-size:13px;color:var(--mut2);margin-bottom:16px;display:flex;align-items:center;gap:6px"><span>⏰</span> Set your starting 5 + emergency before <strong style="color:var(--txt)">Monday midnight</strong> — lineups lock automatically at that time.</div>
     <div class="lineup-grid">
       <div class="card">
         <div class="card-hd"><div class="card-title">Starters</div><span class="pill pg">5 START</span></div>
         <div class="card-body" id="mt-starters"></div>
       </div>
       <div class="card">
-        <div class="card-hd"><div class="card-title">Bench</div><span class="pill py">BENCH</span></div>
+        <div class="card-hd"><div class="card-title">Emergency / Bench</div><span class="pill py">BENCH</span></div>
         <div class="card-body" id="mt-bench"></div>
       </div>
     </div>
@@ -370,7 +392,6 @@ body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradi
 <div class="toast hidden" id="toast"></div>
 </div>
 
-<!-- Firebase -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getFirestore, doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
@@ -388,7 +409,6 @@ const firebaseApp = initializeApp(firebaseConfig);
 const db = getFirestore(firebaseApp);
 const DB_DOC = doc(db, 'league', 'state');
 
-// ─── STATIC DATA ─────────────────────────────────────────────
 const TEAMS = [
   {id:'brendans-ballers',  name:"Brendan's Ballers",    pw:'0073'},
   {id:'shaqs-attack',      name:"Shaq's Attack",        pw:'5001'},
@@ -400,6 +420,11 @@ const TEAMS = [
   {id:'dingers-ringers',   name:"Dinger's Ringers",     pw:'3675'},
   {id:'commissioner',      name:'Commissioner',         pw:'commish2025'}
 ];
+
+const PLAYOFF_TEAMS = ['jeffs-jokers','kopecs-kingpins','dingers-ringers','brendans-ballers'];
+const CONSOLATION_TEAMS = ['shaqs-attack','ryans-rolling','pats-punishers','andys-avengers'];
+const PLAYOFF_WEEKS = ['Cheetah','Chameleon','Scorpion','Shark','World Championship'];
+
 const DEFAULT_PLAYER_POOL = [
   'Andrew Anderson','DJ Archer','Cristian Azcona','Ryan Barnes','Chris Barnes','Dom Barrett',
   'Jason Belmonte','Deo Benard','Brandon Bonta','DeeRonn Booker','Trey A Brand','Jakob Butturff',
@@ -420,33 +445,40 @@ const DEFAULT_PLAYER_POOL = [
   'Stu Williams','Keven Williams'
 ];
 
-// ─── STATE ───────────────────────────────────────────────────
-let DB = null; // live data from Firestore
+let DB = null;
 let CU = null;
 let modalCB = null;
 let mtSelectedWeek = null;
-let unsubscribe = null;
+let stndTab = 'playoffs';
 
 // ─── HELPERS ────────────────────────────────────────────────
-function isWeekLocked(wid){
-  // A week is only locked if the commish has manually generated/locked it
-  return !!(DB.lockedLineups&&DB.lockedLineups[wid]);
-}
+function isWeekLocked(wid){return !!(DB.lockedLineups&&DB.lockedLineups[wid]);}
 function getStartersForWeek(tid,wid){
   if(DB.lockedLineups&&DB.lockedLineups[wid]&&DB.lockedLineups[wid][tid])
     return DB.lockedLineups[wid][tid];
   return (DB.lineups&&DB.lineups[tid]?DB.lineups[tid].starters:[])||[];
 }
+function getEmergencyForWeek(tid,wid){
+  if(DB.lockedLineups&&DB.lockedLineups[wid]&&DB.lockedLineups[wid][tid+'_emerg'])
+    return DB.lockedLineups[wid][tid+'_emerg']||null;
+  return (DB.lineups&&DB.lineups[tid]?DB.lineups[tid].emergency:null)||null;
+}
 function allRostered(){const s=new Set();Object.values(DB.rosters||{}).forEach(r=>r.forEach(p=>s.add(p)));return s;}
 function freeAgents(q=''){const r=allRostered();return (DB.playerPool||[]).filter(p=>!r.has(p)).filter(p=>!q||p.toLowerCase().includes(q.toLowerCase())).sort();}
 function teamById(id){return TEAMS.find(t=>t.id===id);}
 function safeP(s){return s.replace(/'/g,"\\'");}
+function isPlayoffTeam(tid){return PLAYOFF_TEAMS.includes(tid);}
+function isPlayoffWeek(wid){return !!(DB.playoffWeeks&&DB.playoffWeeks.includes(wid));}
+function regularWeeks(){return (DB.weeks||[]).filter(w=>!isPlayoffWeek(w.id));}
+function playoffWeeksList(){return (DB.weeks||[]).filter(w=>isPlayoffWeek(w.id));}
+
 function weekScore(tid,wid){
   const starters=getStartersForWeek(tid,wid);
   const ws=(DB.scores&&DB.scores[wid])||{};
   return starters.reduce((sum,p)=>{const s=ws[p];return sum+(s?(s.dnf?-10:Number(s.pts||0)):0);},0);
 }
-function totalScore(tid){return (DB.weeks||[]).reduce((s,w)=>s+weekScore(tid,w.id),0);}
+function totalScoreForWeeks(tid,weeks){return weeks.reduce((s,w)=>s+weekScore(tid,w.id),0);}
+
 function toast(msg,type='tg'){
   const t=document.getElementById('toast');
   t.textContent=msg;t.className='toast '+type;
@@ -477,43 +509,62 @@ function logTx(type,msg){
 
 // ─── FIRESTORE ───────────────────────────────────────────────
 async function saveDB(){
-  try{
-    await setDoc(DB_DOC, DB);
-  }catch(e){
-    toast('Save failed — check connection','tr');
-    console.error(e);
-  }
+  try{await setDoc(DB_DOC,DB);}
+  catch(e){toast('Save failed — check connection','tr');console.error(e);}
 }
 
 // ─── BOOT ────────────────────────────────────────────────────
 async function boot(){
   try{
-    const snap = await getDoc(DB_DOC);
+    const snap=await getDoc(DB_DOC);
     if(snap.exists()){
-      DB = snap.data();
+      DB=snap.data();
       if(!DB.lockedLineups)DB.lockedLineups={};
       if(!DB.playerPool)DB.playerPool=[...DEFAULT_PLAYER_POOL];
       if(!DB.weeks||DB.weeks.length===0)DB.weeks=[{id:'w1',name:'Players Championship'}];
+      if(!DB.playoffWeeks)DB.playoffWeeks=[];
+
+      // ── MIGRATION: add playoff weeks + archive regular season ──
+      if(!DB.playoffMigrated){
+        // Archive current scores as regular season
+        DB.regularSeasonScores=JSON.parse(JSON.stringify(DB.scores||{}));
+        DB.regularSeasonWeeks=JSON.parse(JSON.stringify(DB.weeks||[]));
+        // Wipe scores
+        DB.scores={};
+        // Add 5 playoff weeks
+        const startIdx=DB.weeks.length+1;
+        PLAYOFF_WEEKS.forEach((name,i)=>{
+          const id='pw'+(i+1);
+          DB.weeks.push({id,name});
+          if(!DB.playoffWeeks.includes(id))DB.playoffWeeks.push(id);
+        });
+        DB.playoffMigrated=true;
+        await saveDB();
+      }
     } else {
-      // First run — initialise default state
       const nonComm=TEAMS.filter(t=>t.id!=='commissioner');
-      DB = {
-        teamNames: Object.fromEntries(TEAMS.map(t=>[t.id,t.name])),
-        rosters: Object.fromEntries(nonComm.map(t=>[t.id,[]])),
-        lineups: Object.fromEntries(nonComm.map(t=>[t.id,{starters:[],bench:[]}])),
-        weeks: [{id:'w1',name:'Players Championship'}],
-        scores: {},
-        playerPool: [...DEFAULT_PLAYER_POOL],
-        transactions: [],
-        lockedLineups: {}
+      DB={
+        teamNames:Object.fromEntries(TEAMS.map(t=>[t.id,t.name])),
+        rosters:Object.fromEntries(nonComm.map(t=>[t.id,[]])),
+        lineups:Object.fromEntries(nonComm.map(t=>[t.id,{starters:[],bench:[],emergency:null}])),
+        weeks:[{id:'w1',name:'Players Championship'}],
+        scores:{},playerPool:[...DEFAULT_PLAYER_POOL],transactions:[],
+        lockedLineups:{},playoffWeeks:[],playoffMigrated:false,
+        regularSeasonScores:{},regularSeasonWeeks:[]
       };
       await saveDB();
     }
-    // Subscribe to live updates
-    unsubscribe = onSnapshot(DB_DOC, docSnap=>{
+    // Ensure all lineups have emergency field
+    TEAMS.filter(t=>t.id!=='commissioner').forEach(t=>{
+      if(DB.lineups&&DB.lineups[t.id]&&DB.lineups[t.id].emergency===undefined)
+        DB.lineups[t.id].emergency=null;
+    });
+
+    unsubscribe=onSnapshot(DB_DOC,docSnap=>{
       if(docSnap.exists()&&CU){
-        DB = docSnap.data();
+        DB=docSnap.data();
         if(!DB.lockedLineups)DB.lockedLineups={};
+        if(!DB.playoffWeeks)DB.playoffWeeks=[];
         refreshUI();
       }
     });
@@ -525,6 +576,8 @@ async function boot(){
     document.querySelector('.loading-txt').textContent='Connection error — check console';
   }
 }
+
+let unsubscribe=null;
 
 function refreshUI(){
   if(!CU)return;
@@ -592,7 +645,8 @@ window.doLogout=doLogout;
 
 // ─── INIT ────────────────────────────────────────────────────
 function initApp(){
-  mtSelectedWeek=(DB.weeks&&DB.weeks.length>0)?DB.weeks[DB.weeks.length-1].id:null;
+  const pwks=playoffWeeksList();
+  mtSelectedWeek=pwks.length>0?pwks[pwks.length-1].id:((DB.weeks&&DB.weeks.length>0)?DB.weeks[DB.weeks.length-1].id:null);
   populateWeekSels();
   renderStandings();
   if(!CU.isComm)renderMyTeam();
@@ -600,12 +654,23 @@ function initApp(){
   if(CU.isComm){populateSnapWsel();renderScoreEntry();renderPoolList();}
   gotoPage('standings',document.querySelector('.nav-btn'));
 }
+
 function populateWeekSels(){
   const sel=document.getElementById('sc-wsel');if(!sel)return;
   sel.innerHTML='';
-  (DB.weeks||[]).forEach((w,i)=>{const o=document.createElement('option');o.value=w.id;o.textContent=`Wk ${i+1}: ${w.name}`;sel.appendChild(o);});
-  if(DB.weeks&&DB.weeks.length)sel.value=DB.weeks[DB.weeks.length-1].id;
+  (DB.weeks||[]).forEach((w,i)=>{
+    const o=document.createElement('option');
+    o.value=w.id;
+    const isPO=isPlayoffWeek(w.id);
+    o.textContent=`${isPO?'🏆 ':''}Wk ${i+1}: ${w.name}`;
+    sel.appendChild(o);
+  });
+  // Default to first playoff week
+  const pwks=playoffWeeksList();
+  if(pwks.length)sel.value=pwks[0].id;
+  else if(DB.weeks&&DB.weeks.length)sel.value=DB.weeks[DB.weeks.length-1].id;
 }
+
 function gotoPage(name,btn){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
@@ -621,46 +686,124 @@ function gotoPage(name,btn){
 window.gotoPage=gotoPage;
 
 // ─── STANDINGS ───────────────────────────────────────────────
+function switchStndTab(tab,btn){
+  stndTab=tab;
+  document.querySelectorAll('.stnd-tab').forEach(b=>b.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  document.getElementById('stnd-playoffs').style.display=tab==='playoffs'?'':'none';
+  document.getElementById('stnd-consolation').style.display=tab==='consolation'?'':'none';
+  document.getElementById('stnd-regular').style.display=tab==='regular'?'':'none';
+  renderStandings();
+}
+window.switchStndTab=switchStndTab;
+
 function renderStandings(){
   if(!DB)return;
-  const _wid = (DB.weeks||[])[DB.weeks.length-1]?.id;
-console.log('latest week id:', _wid);
-console.log('scores:', JSON.stringify((DB.scores||{})[_wid]));
-TEAMS.filter(t=>t.id!=='commissioner').forEach(t=>{
-  console.log(t.id, 'starters:', getStartersForWeek(t.id, _wid));
-});
-  const wShow=DB.weeks||[];
-  const playedWeeks=wShow.filter(w=>DB.scores&&DB.scores[w.id]&&Object.keys(DB.scores[w.id]).length>0);
+  const pwks=playoffWeeksList();
+  const rwks=regularWeeks();
+
+  // Playoff standings
+  renderStandingsTable(
+    PLAYOFF_TEAMS, pwks,
+    'stnd-head-po','stnd-body-po',
+    '🏆 Playoffs',
+    pwks.filter(w=>DB.scores&&DB.scores[w.id]&&Object.keys(DB.scores[w.id]).length>0),
+    'playoff'
+  );
+
+  // Consolation standings
+  renderStandingsTable(
+    CONSOLATION_TEAMS, pwks,
+    'stnd-head-co','stnd-body-co',
+    'Consolation',
+    pwks.filter(w=>DB.scores&&DB.scores[w.id]&&Object.keys(DB.scores[w.id]).length>0),
+    'consolation'
+  );
+
+  // Regular season (frozen)
+  renderRegularSeasonTable();
+}
+
+function renderStandingsTable(teamIds, weeks, headId, bodyId, label, playedWeeks, type){
+  const head=document.getElementById(headId);
+  const body=document.getElementById(bodyId);
+  if(!head||!body)return;
+
   const sub=document.getElementById('stnd-sub');
-  if(sub)sub.textContent=playedWeeks.length===0?'No weeks scored yet':`As of Week ${playedWeeks.length}: ${playedWeeks[playedWeeks.length-1].name}`;
-  document.getElementById('stnd-head').innerHTML=`<th style="width:40px"></th><th>TEAM</th><th style="text-align:right">TOTAL</th><th style="text-align:right">LAST WK</th>`;
-  const teams=TEAMS.filter(t=>t.id!=='commissioner');
-  const sorted=[...teams].sort((a,b)=>totalScore(b.id)-totalScore(a.id));
-  const body=document.getElementById('stnd-body');body.innerHTML='';
+  if(sub)sub.textContent='';
+
+  head.innerHTML=`<th style="width:40px"></th><th>TEAM</th><th style="text-align:right">TOTAL</th><th style="text-align:right">LAST WK</th>`;
+
+  const teams=TEAMS.filter(t=>teamIds.includes(t.id));
+  const sorted=[...teams].sort((a,b)=>totalScoreForWeeks(b.id,weeks)-totalScoreForWeeks(a.id,weeks));
+  body.innerHTML='';
+
   sorted.forEach((team,i)=>{
-    const rank=i+1;const rc=rank===1?'r1':rank===2?'r2':rank===3?'r3':'';
-    const tot=wShow.reduce((s,w)=>s+weekScore(team.id,w.id),0);
+    const rank=i+1;
+    const rc=rank===1?'r1':rank===2?'r2':rank===3?'r3':'';
+    const tot=totalScoreForWeeks(team.id,weeks);
     let lastWkScore=null,lastWkName='—';
-    for(let j=wShow.length-1;j>=0;j--){
-      const w=wShow[j];
-      if(DB.scores&&DB.scores[w.id]&&Object.keys(DB.scores[w.id]).length>0){lastWkScore=weekScore(team.id,w.id);lastWkName=w.name;break;}
+    for(let j=weeks.length-1;j>=0;j--){
+      const w=weeks[j];
+      if(DB.scores&&DB.scores[w.id]&&Object.keys(DB.scores[w.id]).length>0){
+        lastWkScore=weekScore(team.id,w.id);lastWkName=w.name;break;
+      }
     }
     const anyData=lastWkScore!==null;
     const displayName=(DB.teamNames&&DB.teamNames[team.id])||team.name;
     const youBadge=CU&&!CU.isComm&&team.id===CU.teamId?' <span class="pill pb" style="font-size:9px">YOU</span>':'';
+    const typeBadge=type==='playoff'?'<span class="playoff-badge" style="margin-left:6px">PLAYOFF</span>':'<span class="consol-badge" style="margin-left:6px">CONSOL</span>';
+
+    // Asterisk check
+    const latestScoredWeek=[...weeks].reverse().find(w=>DB.scores&&DB.scores[w.id]&&Object.keys(DB.scores[w.id]).length>0);
+    const latestWS=latestScoredWeek?((DB.scores&&DB.scores[latestScoredWeek.id])||{}):{};
+    const latestStarters=latestScoredWeek?getStartersForWeek(team.id,latestScoredWeek.id):[];
+    const hasIncomplete=latestStarters.length>0&&latestStarters.some(p=>!latestWS[p]);
+    const asterisk=hasIncomplete?`<span style="color:var(--blu);font-size:22px;font-family:'Barlow',sans-serif;vertical-align:super;margin-left:2px" title="Scores not fully entered for current week">✱</span>`:'';
+
     const lastCell=lastWkScore!==null
       ?`<td style="text-align:right"><span style="font-size:13px;font-weight:600;color:var(--txt)">${lastWkScore.toFixed(0)}</span><div style="font-size:10px;color:var(--mut)">${lastWkName.length>14?lastWkName.slice(0,13)+'…':lastWkName}</div></td>`
       :`<td style="text-align:right;color:var(--mut)">—</td>`;
-    const tr=document.createElement('tr');
-    if(rank<=4)tr.style.background='rgba(74,222,128,.10)';
-    // Check if there's an active (most recent) week with a locked lineup but missing scores for some starters
-const latestScoredWeek = [...(wShow)].reverse().find(w => DB.scores && DB.scores[w.id] && Object.keys(DB.scores[w.id]).length > 0);
-const latestWS = latestScoredWeek ? ((DB.scores && DB.scores[latestScoredWeek.id]) || {}) : {};
-const latestStarters = latestScoredWeek ? getStartersForWeek(team.id, latestScoredWeek.id) : [];
-const hasIncomplete = latestStarters.length > 0 && latestStarters.some(p => !latestWS[p]);
-const asterisk = hasIncomplete ? `<span style="color:var(--blu);font-size:22px;font-family:'Barlow',sans-serif;vertical-align:super;margin-left:2px" title="Scores not fully entered for current week">✱</span>` : '';
 
-tr.innerHTML=`<td><span class="rank-n ${rc}">${rank}</span></td><td class="tnm">${displayName}${youBadge}</td><td><span style="font-family:'Bebas Neue',sans-serif;font-size:48px;color:var(--acc)">${anyData?tot.toFixed(0):'—'}</span>${asterisk}</td>${lastCell}`;
+    const tr=document.createElement('tr');
+    if(rank<=2&&type==='playoff')tr.style.background='rgba(245,166,35,.07)';
+    if(rank<=2&&type==='consolation')tr.style.background='rgba(96,165,250,.05)';
+    tr.innerHTML=`<td><span class="rank-n ${rc}">${rank}</span></td><td class="tnm">${displayName}${youBadge}${typeBadge}</td><td><span style="font-family:'Bebas Neue',sans-serif;font-size:48px;color:var(--acc)">${anyData?tot.toFixed(0):'—'}</span>${asterisk}</td>${lastCell}`;
+    body.appendChild(tr);
+  });
+}
+
+function renderRegularSeasonTable(){
+  const head=document.getElementById('stnd-head-rs');
+  const body=document.getElementById('stnd-body-rs');
+  if(!head||!body)return;
+  head.innerHTML=`<th style="width:40px"></th><th>TEAM</th><th style="text-align:right">TOTAL</th>`;
+  const rswks=DB.regularSeasonWeeks||[];
+  const rsScores=DB.regularSeasonScores||{};
+  const teams=TEAMS.filter(t=>t.id!=='commissioner');
+
+  function rsTotal(tid){
+    return rswks.reduce((sum,w)=>{
+      const starters=DB.lockedLineups&&DB.lockedLineups[w.id]&&DB.lockedLineups[w.id][tid]
+        ?DB.lockedLineups[w.id][tid]
+        :((DB.lineups&&DB.lineups[tid])?DB.lineups[tid].starters||[]:[]);
+      const ws=rsScores[w.id]||{};
+      return sum+starters.reduce((s,p)=>{const sc=ws[p];return s+(sc?(sc.dnf?-10:Number(sc.pts||0)):0);},0);
+    },0);
+  }
+
+  const sorted=[...teams].sort((a,b)=>rsTotal(b.id)-rsTotal(a.id));
+  body.innerHTML='';
+  sorted.forEach((team,i)=>{
+    const rank=i+1;
+    const rc=rank===1?'r1':rank===2?'r2':rank===3?'r3':'';
+    const tot=rsTotal(team.id);
+    const displayName=(DB.teamNames&&DB.teamNames[team.id])||team.name;
+    const youBadge=CU&&!CU.isComm&&team.id===CU.teamId?' <span class="pill pb" style="font-size:9px">YOU</span>':'';
+    const poTag=isPlayoffTeam(team.id)?'<span class="playoff-badge" style="margin-left:6px">PLAYOFF</span>':'<span class="consol-badge" style="margin-left:6px">CONSOL</span>';
+    const tr=document.createElement('tr');
+    if(rank<=4)tr.style.background='rgba(74,222,128,.06)';
+    tr.innerHTML=`<td><span class="rank-n ${rc}">${rank}</span></td><td class="tnm">${displayName}${youBadge}${poTag}</td><td><span style="font-family:'Bebas Neue',sans-serif;font-size:48px;color:var(--acc)">${tot||tot===0?tot.toFixed(0):'—'}</span></td>`;
     body.appendChild(tr);
   });
 }
@@ -670,13 +813,15 @@ function renderWeekTabs(){
   const container=document.getElementById('mt-week-tabs');container.innerHTML='';
   (DB.weeks||[]).forEach((w,i)=>{
     const locked=isWeekLocked(w.id);const isActive=mtSelectedWeek===w.id;
+    const isPO=isPlayoffWeek(w.id);
     const btn=document.createElement('button');
     btn.className='week-tab'+(isActive?' wt-active':'')+(locked?' wt-locked':'');
-    btn.textContent=`Wk ${i+1}: ${w.name}${locked?' 🔒':''}`;
+    btn.textContent=`${isPO?'🏆 ':''}Wk ${i+1}: ${w.name}${locked?' 🔒':''}`;
     btn.onclick=()=>{mtSelectedWeek=w.id;renderMyTeam();};
     container.appendChild(btn);
   });
 }
+
 function renderMyTeam(){
   if(!CU||CU.isComm||!DB)return;
   const tid=CU.teamId;
@@ -686,8 +831,8 @@ function renderMyTeam(){
   if(!wkObj)return;
   const wkNum=(DB.weeks||[]).indexOf(wkObj)+1;
   const locked=isWeekLocked(wid);
-  const lu=(DB.lineups&&DB.lineups[tid])||{starters:[],bench:[]};
-  // For scores always use locked snapshot if available, else live
+  const isPO=isPlayoffWeek(wid);
+  const lu=(DB.lineups&&DB.lineups[tid])||{starters:[],bench:[],emergency:null};
   const scoringStarters=getStartersForWeek(tid,wid);
   const ws=(DB.scores&&DB.scores[wid])||{};
 
@@ -695,7 +840,7 @@ function renderMyTeam(){
   document.getElementById('mt-title').textContent=displayName;
   const nameInp=document.getElementById('team-name-inp');
   if(nameInp)nameInp.value=displayName;
-  document.getElementById('mt-wk-pill').textContent=`WK ${wkNum}: ${wkObj.name.toUpperCase()}`;
+  document.getElementById('mt-wk-pill').textContent=`${isPO?'🏆 ':''}WK ${wkNum}: ${wkObj.name.toUpperCase()}`;
 
   renderWeekTabs();
 
@@ -708,7 +853,6 @@ function renderMyTeam(){
   } else {
     banner.style.display='none';deadlineMsg.style.display='flex';
     if(lockStatus)lockStatus.textContent='';
-
   }
 
   // Starters
@@ -722,17 +866,30 @@ function renderMyTeam(){
   });
   if(!locked){for(let i=displayStarters.length;i<5;i++)sl.innerHTML+=`<div class="prow"><span class="pdot s" style="background:var(--mut)"></span><span class="txt-mut tsm" style="flex:1;font-style:italic">Empty slot</span></div>`;}
 
-  // Bench
+  // Bench / Emergency
   const bl=document.getElementById('mt-bench');bl.innerHTML='';
+
+  // Emergency slot (playoff weeks only, or always show)
+  const emergPlayer=locked?(DB.lockedLineups[wid]&&DB.lockedLineups[wid][tid+'_emerg'])||lu.emergency:lu.emergency;
+  if(emergPlayer){
+    const emergActs=locked
+      ?`<span class="pill pa" style="font-size:9px">🚨 EMERG</span>`
+      :`<div class="flex gap2"><button class="btn-a btn-emerg" onclick="toStarter('${safeP(emergPlayer)}')">Start</button><button class="btn-a btn-drop" onclick="confirmDrop('${safeP(emergPlayer)}')">Drop</button><button class="btn-a" onclick="clearEmergency()" style="font-size:10px">Clear</button></div>`;
+    bl.innerHTML+=`<div class="prow" style="background:rgba(245,166,35,.05);border-radius:8px;padding:8px 10px;margin-bottom:4px"><span class="pdot e"></span><span class="pname">${emergPlayer} <span class="pill pa" style="font-size:9px">🚨 EMERG</span></span>${locked?'':emergActs}</div>`;
+  } else if(!locked){
+    bl.innerHTML+=`<div class="prow" style="border:1px dashed rgba(245,166,35,.3);border-radius:8px;padding:8px 10px;margin-bottom:4px"><span class="pdot e" style="background:var(--mut)"></span><span class="txt-mut tsm" style="flex:1;font-style:italic">Emergency slot — pick from bench below</span></div>`;
+  }
+
+  // Regular bench
   (lu.bench||[]).forEach(p=>{
     const acts=locked
       ?`<span class="pill py" style="font-size:9px">BENCH</span>`
-      :`<div class="flex gap2"><button class="btn-a btn-start" onclick="toStarter('${safeP(p)}')">Start</button><button class="btn-a btn-drop" onclick="confirmDrop('${safeP(p)}')">Drop</button></div>`;
+      :`<div class="flex gap2"><button class="btn-a btn-start" onclick="toStarter('${safeP(p)}')">Start</button><button class="btn-a btn-emerg" onclick="setEmergency('${safeP(p)}')">Emergency</button><button class="btn-a btn-drop" onclick="confirmDrop('${safeP(p)}')">Drop</button></div>`;
     bl.innerHTML+=`<div class="prow"><span class="pdot b"></span><span class="pname">${p}</span>${acts}</div>`;
   });
-  if(!lu.bench||lu.bench.length===0)bl.innerHTML='<div class="empty" style="padding:16px"><div class="empty-ico" style="font-size:20px">🪑</div><div>No bench players</div></div>';
+  if((!lu.bench||lu.bench.length===0)&&!emergPlayer)bl.innerHTML='<div class="empty" style="padding:16px"><div class="empty-ico" style="font-size:20px">🪑</div><div>No bench players</div></div>';
 
-  // Scores — always based on scoringStarters (locked snapshot or live)
+  // Scores
   const msc=document.getElementById('mt-scores');
   const anyScore=scoringStarters.some(p=>ws[p]);
   if(!anyScore){
@@ -768,10 +925,11 @@ window.saveTeamName=saveTeamName;
 async function toStarter(player){
   if(isWeekLocked(mtSelectedWeek)){toast('This week is locked.','tr');return;}
   if(!DB.lineups)DB.lineups={};
-  if(!DB.lineups[CU.teamId])DB.lineups[CU.teamId]={starters:[],bench:[]};
+  if(!DB.lineups[CU.teamId])DB.lineups[CU.teamId]={starters:[],bench:[],emergency:null};
   const lu=DB.lineups[CU.teamId];
   if((lu.starters||[]).length>=5){toast('Already have 5 starters. Move one to bench first.','tr');return;}
   lu.bench=(lu.bench||[]).filter(p=>p!==player);
+  if(lu.emergency===player)lu.emergency=null;
   if(!(lu.starters||[]).includes(player)){lu.starters=lu.starters||[];lu.starters.push(player);}
   logTx('start',`${CU.teamName} moved ${player} to starters`);
   await saveDB();renderMyTeam();toast(`${player} is now a starter ✓`);
@@ -781,7 +939,7 @@ window.toStarter=toStarter;
 async function toBench(player){
   if(isWeekLocked(mtSelectedWeek)){toast('This week is locked.','tr');return;}
   if(!DB.lineups)DB.lineups={};
-  if(!DB.lineups[CU.teamId])DB.lineups[CU.teamId]={starters:[],bench:[]};
+  if(!DB.lineups[CU.teamId])DB.lineups[CU.teamId]={starters:[],bench:[],emergency:null};
   const lu=DB.lineups[CU.teamId];
   lu.starters=(lu.starters||[]).filter(p=>p!==player);
   if(!(lu.bench||[]).includes(player)){lu.bench=lu.bench||[];lu.bench.push(player);}
@@ -790,13 +948,32 @@ async function toBench(player){
 }
 window.toBench=toBench;
 
+async function setEmergency(player){
+  if(isWeekLocked(mtSelectedWeek)){toast('This week is locked.','tr');return;}
+  if(!DB.lineups[CU.teamId])DB.lineups[CU.teamId]={starters:[],bench:[],emergency:null};
+  const lu=DB.lineups[CU.teamId];
+  const prev=lu.emergency;
+  lu.emergency=player;
+  logTx('lineup',`${CU.teamName} set ${player} as emergency`);
+  await saveDB();renderMyTeam();toast(`${player} set as emergency ✓`);
+}
+window.setEmergency=setEmergency;
+
+async function clearEmergency(){
+  if(isWeekLocked(mtSelectedWeek)){toast('This week is locked.','tr');return;}
+  DB.lineups[CU.teamId].emergency=null;
+  await saveDB();renderMyTeam();toast('Emergency slot cleared');
+}
+window.clearEmergency=clearEmergency;
+
 function confirmDrop(player){
   if((DB.lineups&&DB.lineups[CU.teamId]&&DB.lineups[CU.teamId].starters||[]).includes(player)){
     toast('Move player to bench before dropping.','tr');return;
   }
-  openModal('Drop Player',`<p style="font-size:15px;line-height:1.6">Drop <strong>${player}</strong> from your roster? They will immediately become a free agent.</p>`,'Drop',true,async()=>{
+  openModal('Drop Player',`<p style="font-size:15px;line-height:1.6">Drop <strong>${player}</strong> from your roster?</p>`,'Drop',true,async()=>{
     DB.rosters[CU.teamId]=(DB.rosters[CU.teamId]||[]).filter(p=>p!==player);
     DB.lineups[CU.teamId].bench=(DB.lineups[CU.teamId].bench||[]).filter(p=>p!==player);
+    if(DB.lineups[CU.teamId].emergency===player)DB.lineups[CU.teamId].emergency=null;
     logTx('drop',`${CU.teamName} dropped ${player}`);
     await saveDB();renderMyTeam();renderFA();toast(`${player} dropped`,'tr');
   });
@@ -823,20 +1000,22 @@ async function pickupPlayer(player){
   if(!DB.rosters)DB.rosters={};
   if(!DB.rosters[CU.teamId])DB.rosters[CU.teamId]=[];
   if(!DB.lineups)DB.lineups={};
-  if(!DB.lineups[CU.teamId])DB.lineups[CU.teamId]={starters:[],bench:[]};
+  if(!DB.lineups[CU.teamId])DB.lineups[CU.teamId]={starters:[],bench:[],emergency:null};
   const roster=DB.rosters[CU.teamId];
   if(roster.length>=10){
     const lu=DB.lineups[CU.teamId];
     const starterOpts=(lu.starters||[]).map(p=>`<option value="${safeP(p)}">[STARTER] ${p}</option>`).join('');
     const benchOpts=(lu.bench||[]).map(p=>`<option value="${safeP(p)}">[BENCH] ${p}</option>`).join('');
+    const emergOpt=lu.emergency?`<option value="${safeP(lu.emergency)}">[EMERG] ${lu.emergency}</option>`:'';
     openModal('Roster Full — Drop a Player',
       `<p style="font-size:14px;margin-bottom:12px">Roster full (10/10). Select a player to drop to add <strong>${player}</strong>.</p>
-       <select class="fsel" id="drop-sel" style="margin-bottom:0">${starterOpts}${benchOpts}</select>`,
+       <select class="fsel" id="drop-sel" style="margin-bottom:0">${starterOpts}${benchOpts}${emergOpt}</select>`,
       'Add & Drop',false,async()=>{
         const dropPlayer=document.getElementById('drop-sel').value;
         DB.rosters[CU.teamId]=DB.rosters[CU.teamId].filter(p=>p!==dropPlayer);
         DB.lineups[CU.teamId].starters=(DB.lineups[CU.teamId].starters||[]).filter(p=>p!==dropPlayer);
         DB.lineups[CU.teamId].bench=(DB.lineups[CU.teamId].bench||[]).filter(p=>p!==dropPlayer);
+        if(DB.lineups[CU.teamId].emergency===dropPlayer)DB.lineups[CU.teamId].emergency=null;
         DB.rosters[CU.teamId].push(player);DB.lineups[CU.teamId].bench.push(player);
         logTx('add',`${CU.teamName} added ${player}`);logTx('drop',`${CU.teamName} dropped ${dropPlayer}`);
         await saveDB();renderFA();renderMyTeam();renderRosters();renderTransactions();
@@ -860,14 +1039,16 @@ function renderRosters(){
   const teams=TEAMS.filter(t=>t.id!=='commissioner');
   g.innerHTML=teams.map(team=>{
     const r=(DB.rosters&&DB.rosters[team.id])||[];
-    const lu=(DB.lineups&&DB.lineups[team.id])||{starters:[],bench:[]};
+    const lu=(DB.lineups&&DB.lineups[team.id])||{starters:[],bench:[],emergency:null};
     const displayName=(DB.teamNames&&DB.teamNames[team.id])||team.name;
     const rows=r.map(p=>{
       const isStart=(lu.starters||[]).includes(p);
-      return`<div class="prow"><span class="pdot ${isStart?'s':'b'}"></span><span class="pname">${p}</span><span class="pill ${isStart?'pg':'py'}" style="font-size:9px">${isStart?'START':'BENCH'}</span></div>`;
+      const isEmerg=lu.emergency===p;
+      return`<div class="prow"><span class="pdot ${isStart?'s':isEmerg?'e':'b'}"></span><span class="pname">${p}</span><span class="pill ${isStart?'pg':isEmerg?'pa':'py'}" style="font-size:9px">${isStart?'START':isEmerg?'🚨 EMERG':'BENCH'}</span></div>`;
     }).join('');
     const youTag=CU&&!CU.isComm&&team.id===CU.teamId?' <span class="pill pb" style="font-size:9px">YOU</span>':'';
-    return`<div class="card"><div class="card-hd"><div class="card-title">${displayName}${youTag}</div></div><div class="card-body" style="padding:8px 14px">${rows||'<div class="empty" style="padding:12px"><div>Empty roster</div></div>'}</div></div>`;
+    const poTag=isPlayoffTeam(team.id)?'<span class="playoff-badge" style="margin-left:4px">PO</span>':'<span class="consol-badge" style="margin-left:4px">CO</span>';
+    return`<div class="card"><div class="card-hd"><div class="card-title">${displayName}${youTag}${poTag}</div></div><div class="card-body" style="padding:8px 14px">${rows||'<div class="empty" style="padding:12px"><div>Empty roster</div></div>'}</div></div>`;
   }).join('');
 }
 
@@ -884,7 +1065,7 @@ function renderLeaders(){
     ((DB.lineups&&DB.lineups[team.id])?DB.lineups[team.id].starters||[]:[]).forEach(p=>allStarters.add(p));
     allStarters.forEach(p=>{
       if(!playerMap[p])playerMap[p]={team:displayName,pts:0};
-      (DB.weeks||[]).forEach(w=>{
+      playoffWeeksList().forEach(w=>{
         const starters=getStartersForWeek(team.id,w.id);
         if(starters.includes(p)){const s=(DB.scores&&DB.scores[w.id]||{})[p];if(s)playerMap[p].pts+=s.dnf?-10:Number(s.pts||0);}
       });
@@ -914,13 +1095,16 @@ function populateSnapWsel(){
   const sel=document.getElementById('snap-wsel');if(!sel)return;
   sel.innerHTML='';
   (DB.weeks||[]).forEach((w,i)=>{
-    const locked=isWeekLocked(w.id);
+    const locked=isWeekLocked(w.id);const isPO=isPlayoffWeek(w.id);
     const o=document.createElement('option');
-    o.value=w.id;o.textContent=`Wk ${i+1}: ${w.name}${locked?' 🔒':''}`;
+    o.value=w.id;o.textContent=`${isPO?'🏆 ':''}Wk ${i+1}: ${w.name}${locked?' 🔒':''}`;
     sel.appendChild(o);
   });
-  if(DB.weeks&&DB.weeks.length)sel.value=DB.weeks[DB.weeks.length-1].id;
+  const pwks=playoffWeeksList();
+  if(pwks.length)sel.value=pwks[0].id;
+  else if(DB.weeks&&DB.weeks.length)sel.value=DB.weeks[DB.weeks.length-1].id;
 }
+
 async function generateReport(){
   const wid=document.getElementById('snap-wsel').value;
   const wk=(DB.weeks||[]).find(w=>w.id===wid);
@@ -929,6 +1113,7 @@ async function generateReport(){
   DB.lockedLineups[wid]={};
   TEAMS.filter(t=>t.id!=='commissioner').forEach(t=>{
     DB.lockedLineups[wid][t.id]=[...((DB.lineups&&DB.lineups[t.id]?DB.lineups[t.id].starters:[])||[])];
+    DB.lockedLineups[wid][t.id+'_emerg']=(DB.lineups&&DB.lineups[t.id]?DB.lineups[t.id].emergency:null)||null;
   });
   logTx('lock',`Lineups locked for Week ${wnum}: ${wname}`);
   await saveDB();renderScoreEntry();populateSnapWsel();renderTransactions();
@@ -939,6 +1124,8 @@ async function generateReport(){
     const displayName=(DB.teamNames&&DB.teamNames[t.id])||t.name;
     report+=displayName+'\n';
     (DB.lockedLineups[wid][t.id]||[]).forEach((p,i)=>{report+=`  ${i+1}. ${p}\n`;});
+    const emerg=DB.lockedLineups[wid][t.id+'_emerg'];
+    if(emerg)report+=`  🚨 Emergency: ${emerg}\n`;
     report+='\n';
   });
   document.getElementById('lineup-report-text').textContent=report.trim();
@@ -977,9 +1164,13 @@ function renderScoreEntry(){
   g.innerHTML=statusHtml+teams.map(team=>{
     const displayName=(DB.teamNames&&DB.teamNames[team.id])||team.name;
     const starters=getStartersForWeek(team.id,wid);
-    const rows=starters.map(p=>{
+    const emerg=getEmergencyForWeek(team.id,wid);
+    const allPlayers=[...starters];
+    if(emerg&&!allPlayers.includes(emerg))allPlayers.push(emerg);
+    const rows=allPlayers.map(p=>{
       const s=ws[p]||{};
-      return`<div class="sc-row"><span class="sc-pname">${p}</span><input class="sc-inp" type="number" step="0.01" placeholder="pts" value="${s.pts!=null?s.pts:''}" id="sc_${wid}_${safeP(p).replace(/\s/g,'_')}"><label class="dnf-lbl"><input type="checkbox" id="dnf_${wid}_${safeP(p).replace(/\s/g,'_')}" ${s.dnf?'checked':''}> DNF</label></div>`;
+      const isEmerg=emerg===p&&!starters.includes(p);
+      return`<div class="sc-row"><span class="sc-pname">${p}${isEmerg?' <span class="pill pa" style="font-size:9px">🚨 EMERG</span>':''}</span><input class="sc-inp" type="number" step="0.01" placeholder="pts" value="${s.pts!=null?s.pts:''}" id="sc_${wid}_${safeP(p).replace(/\s/g,'_')}"><label class="dnf-lbl"><input type="checkbox" id="dnf_${wid}_${safeP(p).replace(/\s/g,'_')}" ${s.dnf?'checked':''}> DNF</label></div>`;
     }).join('');
     return`<div class="card" style="margin-bottom:0"><div class="card-hd"><div class="card-title" style="font-size:15px">${displayName}</div></div><div class="card-body" style="padding:8px 14px">${rows||'<div class="empty" style="padding:10px">No starters set</div>'}</div></div>`;
   }).join('');
@@ -990,7 +1181,11 @@ async function saveScores(){
   if(!DB.scores)DB.scores={};
   if(!DB.scores[wid])DB.scores[wid]={};
   TEAMS.filter(t=>t.id!=='commissioner').forEach(team=>{
-    getStartersForWeek(team.id,wid).forEach(p=>{
+    const starters=getStartersForWeek(team.id,wid);
+    const emerg=getEmergencyForWeek(team.id,wid);
+    const allPlayers=[...starters];
+    if(emerg&&!allPlayers.includes(emerg))allPlayers.push(emerg);
+    allPlayers.forEach(p=>{
       const key=safeP(p).replace(/\s/g,'_');
       const inp=document.getElementById(`sc_${wid}_${key}`);
       const dnfEl=document.getElementById(`dnf_${wid}_${key}`);
